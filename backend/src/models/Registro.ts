@@ -2,17 +2,17 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../db/conn';
 
 class Registro extends Model {
-  public id!: number;
-  public titulo!: string;
-  public resumo!: string;
-  public descricao!: string;
-  public thumb!: string;
-  public galeria!: string[]; // Array de strings (URLs)
-  public categoria!: 'Flora' | 'Funga' | 'Biomas' | 'Arqueologia' | 'Fauna';
-  public tags!: string;
-  public localidade!: string;
-  public especie?: string;
-  public familia?: string;
+  declare id: number;
+  declare titulo: string;
+  declare resumo: string;
+  declare descricao: string;
+  declare thumb: string;
+  declare galeria: string[]; // Array de strings (URLs)
+  declare categoria: 'Flora' | 'Funga' | 'Biomas' | 'Arqueologia' | 'Fauna';
+  declare tags: string;
+  declare localidade: string;
+  declare especie?: string;
+  declare familia?: string;
 }
 
 Registro.init(

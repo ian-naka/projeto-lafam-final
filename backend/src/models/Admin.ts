@@ -3,10 +3,10 @@ import sequelize from '../db/conn';
 
 //estrutura da tabela admins
 class Admin extends Model {
-  public id!: number;
-  public nome!: string;
-  public email!: string;
-  public senha!: string;
+  declare id: number;
+  declare nome: string;
+  declare email: string;
+  declare senha: string;
 }
 
 Admin.init(
@@ -24,9 +24,6 @@ Admin.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true, //e-mail exclusivo a um admin
-      validate: {
-        isEmail: true, //validacao do Sequelize
-      },
     },
     senha: {
       type: DataTypes.STRING,

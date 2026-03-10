@@ -6,8 +6,13 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import sequelize from './db/conn';
 
+//importa models
 import Admin from './models/Admin';
 import Registro from './models/Registro';
+
+
+//importa controller
+import authRoutes from './routes/authRoutes'
 
 import { conexaoBanco } from './db/conn';
 
@@ -32,6 +37,8 @@ const limite = rateLimit({
 //app.use(limite);
 
 const PORT = process.env.PORT || 3000;
+
+app.use('/auth', authRoutes)
 
 //testa conexao com o banco
 conexaoBanco().then(async () => {
