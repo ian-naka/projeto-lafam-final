@@ -4,6 +4,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import sequelize from './db/conn';
+
+import Admin from './models/Admin';
+import Registro from './models/Registro';
 
 import { conexaoBanco } from './db/conn';
 
@@ -27,15 +31,13 @@ const limite = rateLimit({
 });
 //app.use(limite);
 
-// Rotas do Sistema LAFAM (Comentadas por enquanto)
-// app.use('/auth', authRoutes);
-// app.use('/admin', adminRoutes);
-// app.use('/registros', registroRoutes);
-
 const PORT = process.env.PORT || 3000;
 
 //testa conexao com o banco
-conexaoBanco().then(() => {
+conexaoBanco().then(async () => {
+    console.log("Verificando modelo:", Admin.name); 
+    console.log('Verificando modelo:', Registro.name)
+    await sequelize.sync({ force: false }); 
     app.listen(PORT, () => {
         console.log(`Servidor rodando na porta: ${PORT}`);
     });
