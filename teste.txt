@@ -1,0 +1,97 @@
+Fase 1: Setup da Infraestrutura e Banco de Dados (Semanas 1-2)
+1. Modelagem do Banco de Dados (MySQL)
+
+Ação: Criar o Diagrama Entidade-Relacionamento (DER).
+
+Tabelas Principais:
+
+Admins: id, nome, email, senha_hash, criado_em.
+
+Registros: id, titulo, especie, familia, localidade, data_registro, descricao, link_drive_id, admin_id (chave estrangeira), criado_em.
+
+Ação: Criar o banco de dados lafam_db no MySQL do servidor local (ou ambiente de desenvolvimento).
+
+2. Setup do Backend (Node.js + TypeScript)
+
+Ação: Inicializar o projeto (npm init -y, instalar TypeScript, Express, CORS, Dotenv).
+
+Ação: Configurar a conexão com o banco de dados usando o ORM Sequelize.
+
+Ação: Criar os Modelos (Models) do Sequelize espelhando as tabelas definidas no passo anterior.
+
+3. Setup do Frontend (React + Vite)
+
+Ação: Inicializar o projeto React com TypeScript (npm create vite@latest).
+
+Ação: Instalar e configurar o Tailwind CSS.
+
+Ação: Extrair as cores globais (ex: verde LAFAM) e tipografia do site WordPress atual (via painel do Avada) e configurar como variáveis no tailwind.config.js.
+
+Fase 2: Desenvolvimento da API e Autenticação (Semanas 3-4)
+4. Sistema de Autenticação (Backend)
+
+Ação: Criar a rota de Login (POST /api/auth/login).
+
+Ação: Implementar a verificação de senha com bcryptjs.
+
+Ação: Gerar o token de sessão usando jsonwebtoken (JWT) e configurá-lo para ser retornado em um HttpOnly Cookie (para segurança contra XSS).
+
+Ação: Criar o Middleware de Autenticação para proteger todas as rotas subsequentes.
+
+5. CRUD do Acervo (Backend)
+
+Ação: Criar os Controladores (Controllers) e Rotas protegidas pelo middleware:
+
+POST /api/registros: Para cadastrar novos registros.
+
+GET /api/registros: Para listar o acervo (com paginação e filtros).
+
+PUT /api/registros/:id: Para edição.
+
+DELETE /api/registros/:id: Para exclusão.
+
+Ação: Implementar validação de dados de entrada usando a biblioteca Zod (ex: garantir que a data não seja futura, que os campos obrigatórios estejam preenchidos).
+
+Ação: Implementar a lógica de extração do ID do Google Drive: criar uma função (via Regex) no backend que recebe o link completo do Drive enviado pelo usuário e salva apenas o ID (1JbKk...) no banco.
+
+Fase 3: Desenvolvimento da Interface (Frontend) (Semanas 5-7)
+6. Autenticação e Roteamento (Frontend)
+
+Ação: Configurar o react-router-dom com rotas públicas (Login) e rotas privadas (Dashboard).
+
+Ação: Criar o formulário de Login e a lógica de requisição via Axios para o backend.
+
+Ação: Configurar o Context API para manter o estado do usuário logado em toda a aplicação.
+
+7. Construção do Dashboard (A Releitura do Design)
+
+Ação: Inspecionar o CSS do site WordPress atual (botão direito > Inspecionar) para copiar fielmente o tamanho dos botões, margens e estilos de cabeçalho.
+
+Ação: Construir o layout principal (Sidebar/Menu e Área de Conteúdo) usando as classes do Tailwind.
+
+Ação: Criar a tabela ou grid de listagem dos registros, consumindo a rota GET /api/registros.
+
+8. Formulário de Cadastro e Preview do Drive (Frontend)
+
+Ação: Criar o formulário complexo para inserção de um novo "Registro Ambiental".
+
+Ação: Funcionalidade Chave: Implementar o campo "Link do Google Drive". Criar o estado no React (useState) que escuta a digitação e, instantaneamente, renderiza a tag <img> abaixo do campo usando a URL formatada (https://drive.google.com/uc?id={ID_EXTRAIDO}), fornecendo o preview visual da foto antes de salvar.
+
+Fase 4: Preparação para Produção e Deploy (Semanas 8-9)
+9. Segurança e Tratamento de Erros
+
+Ação: Revisar todas as entradas para garantir que o Sequelize e o Zod estão prevenindo SQL Injection.
+
+Ação: Implementar Flash Messages ou Toasts de sucesso/erro na interface do React (UX).
+
+10. Configuração do Servidor Linux (Deploy)
+
+Ação: Configurar as Variáveis de Ambiente (.env) diretamente no servidor de produção (senhas, segredos JWT).
+
+Ação: Fazer o build do React (npm run build).
+
+Ação: Iniciar a API Node.js usando o gerenciador de processos PM2 para garantir que o backend rode continuamente em segundo plano.
+
+Ação: Configurar o Nginx como proxy reverso para direcionar o tráfego da porta 80/443 para a porta interna do Node.js, e servir os arquivos estáticos do React.
+
+(Opcional/Futuro: Configurar certificado SSL (HTTPS) caso o sistema passe a ser acessado externamente).
