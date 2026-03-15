@@ -6,17 +6,17 @@ const Navbar = () => {
   return (
     <>
       {/* cabecalho transparente */}
-      <header className="absolute top-0 w-full z-[100] px-12 py-6 flex justify-between items-center bg-transparent">
+      <header className="absolute top-0 w-full z-[100] px-12 py-6 flex justify-between items-center bg-transparent pointer-events-none">
         <img
           src="https://lafam.bio.br/wp-content/uploads/2023/03/Logo_circulo_cor.png"
           alt="LAFAM"
-          className="h-[80px] w-auto"
+          className="h-[80px] w-auto pointer-events-auto"
         />
 
         {/* botao menu */}
         <button
           onClick={() => setIsOpen(true)}
-          className="flex flex-col gap-[6px] p-2 focus:outline-none"
+          className="flex flex-col gap-[6px] p-2 focus:outline-none pointer-events-auto"
         >
           <span className="block w-[32px] h-[2px] bg-white transition-colors"></span>
           <span className="block w-[32px] h-[2px] bg-white transition-colors"></span>

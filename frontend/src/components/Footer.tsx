@@ -9,7 +9,7 @@ const Footer = () => {
                 {/* coluna 1 - logo */}
                 <div className="flex justify-center md:justify-start items-start">
                     <img 
-                        src="" 
+                        src={undefined} 
                         alt="" 
                         className="w-[80px] h-auto opacity-90 hover:opacity-100 transition-opacity"
                     />
