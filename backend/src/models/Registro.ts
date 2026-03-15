@@ -11,8 +11,7 @@ class Registro extends Model {
   declare categoria: 'Flora' | 'Funga' | 'Biomas' | 'Arqueologia' | 'Fauna';
   declare tags: string;
   declare localidade: string;
-  declare especie?: string;
-  declare familia?: string;
+  declare coordenadas?: string;
 }
 
 Registro.init(
@@ -59,11 +58,7 @@ Registro.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    especie: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    familia: {
+    coordenadas: {
       type: DataTypes.STRING,
       allowNull: true,
     },

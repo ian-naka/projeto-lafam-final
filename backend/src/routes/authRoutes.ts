@@ -1,4 +1,4 @@
-// Rotas de autenticação
+//rotas de autenticação
 
 import { Router } from 'express'; //gerenciador de rotas do express
 import authController from '../controllers/authController'; //importa as funções do controller
