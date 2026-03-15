@@ -1,3 +1,6 @@
+import { useNavigate } from 'react-router-dom';
+
+//componente
 import React, { useState } from 'react';
 import Input from '../../components/formulario/Input';
 import Button from '../../components/formulario/Button';
@@ -6,6 +9,7 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,6 +34,7 @@ const Login = () => {
             localStorage.setItem('adminId', dados.adminId);
 
             alert('Login realizado com sucesso!');
+            navigate('/criar-registro');
 
         } catch (error) {
             setErro(error instanceof Error ? error.message : String(error));
