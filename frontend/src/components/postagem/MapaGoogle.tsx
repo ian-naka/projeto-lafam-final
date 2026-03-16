@@ -40,7 +40,7 @@ const MapaGoogle: React.FC<MapaGoogleProps> = ({ coordenadas, handleInputChange 
               height="100%"
               frameBorder="0"
               style={{ border: 0 }}
-              src={`http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`}
+              src={`https://maps.google.com/maps?q=${lat},${lng}&hl=pt-BR&z=15&output=embed`}
               title="mapa de coordenadas"
               allowFullScreen
             />

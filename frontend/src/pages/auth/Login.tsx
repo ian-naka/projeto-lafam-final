@@ -4,19 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import Input from '../../components/formulario/Input';
 import Button from '../../components/formulario/Button';
+import useFlashMessage from '../../hooks/useFlashMessage';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
-    const [erro, setErro] = useState('');
     const navigate = useNavigate();
+    const { setFlashMessage } = useFlashMessage();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setErro('');
 
         try {
-            const resposta = await fetch('http://localhost:3000/auth/login', {
+            const resposta = await fetch('http://localhost:4000/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -33,11 +33,11 @@ const Login = () => {
             localStorage.setItem('token', dados.token);
             localStorage.setItem('adminId', dados.adminId);
 
-            alert('Login realizado com sucesso!');
+            setFlashMessage('login realizado com sucesso!', 'success');
             navigate('/criar-registro');
 
         } catch (error) {
-            setErro(error instanceof Error ? error.message : String(error));
+            setFlashMessage(error instanceof Error ? error.message : String(error), 'error');
         }
     };
 
@@ -58,12 +58,6 @@ const Login = () => {
 
                 {/* caixa branca com o formulario */}
                 <div className="bg-white w-full p-[30px] shadow-lg">
-
-                    {erro && (
-                        <div className="text-[#a5002c] border border-[#a5002c] bg-[#fde8ec] p-3 mb-4 text-[14px] text-center">
-                            {erro}
-                        </div>
-                    )}
 
                     <form onSubmit={handleLogin} className="flex flex-col gap-[15px]">
 

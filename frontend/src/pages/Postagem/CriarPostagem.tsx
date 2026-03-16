@@ -4,6 +4,7 @@ import PainelPrincipal from '../../components/postagem/PainelPrincipal';
 import SidebarClassificacao from '../../components/postagem/SidebarClassificacao';
 import MapaGoogle from '../../components/postagem/MapaGoogle';
 import { sanitizarTextoSimples } from '../../helpers/sanitizacao';
+import useFlashMessage from '../../hooks/useFlashMessage';
 
 const CriarPostagem = () => {
     const navigate = useNavigate();
@@ -21,10 +22,26 @@ const CriarPostagem = () => {
         coordenadas: ''
     });
 
-    const [mensagem, setMensagem] = useState('');
+    const [arquivos, setArquivos] = useState<{ thumbFile: File | null; galeriaFiles: FileList | null }>({
+        thumbFile: null,
+        galeriaFiles: null
+    });
+
+    const { setFlashMessage } = useFlashMessage();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+
+        // tratamento especial para inputs de arquivo
+        if (type === 'file') {
+            const inputElement = e.target as HTMLInputElement;
+            setArquivos({
+                ...arquivos,
+                [name]: name === 'thumbFile' && inputElement.files ? inputElement.files[0] : inputElement.files
+            });
+            return;
+        }
+
         let valorVigente = value;
 
         // sanitização em tempo real (bloqueia a digitação de caracteres não permitidos)
@@ -48,38 +65,37 @@ const CriarPostagem = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setMensagem('');
 
-        // limpeza do array de galeria links (vírgula ou quebra de linha)
-        const arrayGaleria = formData.galeriaLinks
-            .split(/[,\n]/)
-            .map(link => link.trim())
-            .filter(link => link !== '');
+        // sanitização e preparo do payload em FormData
+        const payloadFormData = new FormData();
+        payloadFormData.append('titulo', sanitizarTextoSimples(formData.titulo));
+        payloadFormData.append('resumo', sanitizarTextoSimples(formData.resumo));
+        payloadFormData.append('coordenadas', formData.coordenadas.trim());
+        payloadFormData.append('slug', formData.slug.trim());
+        payloadFormData.append('descricao', formData.descricao.trim());
+        payloadFormData.append('categoria', formData.categoria.trim());
+        payloadFormData.append('tags', formData.tags.trim());
+        payloadFormData.append('localidade', formData.localidade.trim());
 
-        // sanitização e preparo do payload
-        const payload = {
-            ...formData,
-            titulo: sanitizarTextoSimples(formData.titulo),
-            resumo: sanitizarTextoSimples(formData.resumo),
-            coordenadas: formData.coordenadas.trim(), // sanitização regex está no backend, mas aqui evitamos espaços
-            slug: formData.slug.trim(),
-            descricao: formData.descricao.trim(),
-            thumb: formData.thumb.trim(),
-            categoria: formData.categoria.trim(),
-            tags: formData.tags.trim(),
-            localidade: formData.localidade.trim(),
-            galeria: arrayGaleria
-        };
+        // append dos arquivos
+        if (arquivos.thumbFile) {
+            payloadFormData.append('thumbFile', arquivos.thumbFile);
+        }
+
+        if (arquivos.galeriaFiles) {
+            for (let i = 0; i < arquivos.galeriaFiles.length; i++) {
+                payloadFormData.append('galeriaFiles', arquivos.galeriaFiles[i]);
+            }
+        }
 
         try {
             const token = localStorage.getItem('token');
-            const resposta = await fetch('http://localhost:3000/registros', {
+            const resposta = await fetch('http://localhost:4000/registros', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(payload)
+                body: payloadFormData
             });
 
             const dados = await resposta.json();
@@ -87,10 +103,10 @@ const CriarPostagem = () => {
             // lida com o erro 404 ou outros erros do servidor
             if (!resposta.ok) throw new Error(`erro ${resposta.status}: ${dados.message || 'falha na comunicação com o servidor.'}`);
 
-            alert('registro postado com sucesso!');
-            navigate('/');
+            setFlashMessage('registro postado com sucesso!', 'success');
+            navigate(`/acervo/${formData.slug.trim()}`);
         } catch (error) {
-            setMensagem(error instanceof Error ? error.message : String(error));
+            setFlashMessage(error instanceof Error ? error.message : String(error), 'error');
         }
     };
 
@@ -112,13 +128,6 @@ const CriarPostagem = () => {
                     </button>
                 </div>
             </div>
-
-            {mensagem && (
-                <div className="max-w-[1200px] mx-auto bg-white border-l-4 border-[#a5002c] p-4 mb-6 shadow-sm">
-                    <p className="text-[#a5002c] font-medium">{mensagem}</p>
-                    {mensagem.includes('404') && <p className="text-sm text-gray-600 mt-1">lembrete: a rota do backend ainda precisa ser criada!</p>}
-                </div>
-            )}
 
             {/* modo formulário com componentes extraídos */}
             <form id="post-form" className="max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-6">

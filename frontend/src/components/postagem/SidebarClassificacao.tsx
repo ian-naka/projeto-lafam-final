@@ -5,8 +5,6 @@ interface SidebarClassificacaoProps {
     categoria: string;
     localidade: string;
     tags: string;
-    thumb: string;
-    galeriaLinks: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
 }
@@ -42,31 +40,30 @@ const SidebarClassificacao: React.FC<SidebarClassificacaoProps> = ({ formData, h
 
       <div className="bg-white shadow-sm border border-gray-200">
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">
-          imagens (links do drive)
+          imagens (upload físico)
         </div>
         <div className="p-4 flex flex-col gap-5">
           <div>
-            <label className="text-sm text-gray-600 block mb-1 font-medium">link da capa (thumbnail)</label>
+            <label className="text-sm text-gray-600 block mb-1 font-medium">imagem de capa (thumbnail)</label>
             <input 
-              type="text" 
-              name="thumb" 
-              value={formData.thumb} 
+              type="file" 
+              name="thumbFile" 
+              accept="image/*"
               onChange={handleInputChange} 
-              placeholder="cole o link de partilha aqui..." 
               className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c]" 
             />
-            <p className="text-[11px] text-gray-500 mt-1">lembre-se de deixar a imagem com acesso "qualquer pessoa com o link".</p>
+            <p className="text-[11px] text-gray-500 mt-1">envie a imagem principal a partir do seu computador.</p>
           </div>
 
           <div className="border-t border-gray-200 pt-4">
-            <label className="text-sm text-gray-600 block mb-1 font-medium">galeria (vários links)</label>
-            <textarea 
-              name="galeriaLinks" 
-              value={formData.galeriaLinks} 
+            <label className="text-sm text-gray-600 block mb-1 font-medium">galeria (várias imagens)</label>
+            <input 
+              type="file" 
+              name="galeriaFiles" 
+              accept="image/*"
+              multiple
               onChange={handleInputChange} 
-              placeholder="cole os links separados por vírgula ou quebra de linha..." 
-              rows={4}
-              className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c] resize-none" 
+              className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c]" 
             />
           </div>
         </div>
