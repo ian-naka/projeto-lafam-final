@@ -27,7 +27,8 @@ const postagemSchema = z.object({
     coordenadas: z.union([
         z.string().regex(coordenadasRegex, "As coordenadas devem estar no formato numérico: 'latitude, longitude' (ex: -21.7664, -43.3444)"),
         z.literal("")
-    ]).optional()
+    ]).optional(),
+    citacao: z.string().optional()
 });
 
 export default class postagemController {
