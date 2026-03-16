@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import '../../assets/avada-post.css';
 
 // interface baseada no model do backend
 interface Registro {
@@ -16,6 +15,7 @@ interface Registro {
     localidade: string;
     coordenadas?: string;
     createdAt: string;
+    citacao?: string;
 }
 
 const VisualizarPostagem = () => {
@@ -84,155 +84,70 @@ const VisualizarPostagem = () => {
     }
 
     return (
-        <div id="wrapper" className="pt-[106px]">
-            <main id="main">
+        <div className="min-h-screen bg-white text-[#181818] pt-32 pb-20 px-6 font-sans">
+            <h1 className="text-center text-4xl font-bold text-gray-900 mb-16">
+                {registro.titulo}
+            </h1>
 
-                {/* hero banner (fusion-fullwidth) com a thumb gerada localmente */}
-                <div
-                    className="fusion-fullwidth fullwidth-box width-100"
-                    style={{
-                        backgroundImage: `url('http://localhost:4000${registro.thumb}')`,
-                        backgroundPosition: 'center center',
-                        backgroundSize: 'cover',
-                        paddingTop: '250px',
-                        paddingBottom: '250px',
-                        position: 'relative'
-                    }}
-                >
-                    {/* camada escurecedora opcional caso a foto seja muito clara */}
-                    <div className="absolute inset-0 bg-black/40 z-0"></div>
-                    <div className="fusion-row relative z-10 flex flex-col items-center justify-center h-full">
-                        {/* você pode colocar o título aqui se o tema avada exigir, ou no corpo abaixo */}
-                    </div>
+            <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
+
+                {/* Coluna da Esquerda (Imagens e Mapa) */}
+                <div className="md:col-span-4 flex flex-col">
+                    {/* Galeria de Imagens (Apenas Galeria no map) */}
+                    {registro.galeria && registro.galeria.length > 0 && (
+                        registro.galeria.map((link, idx) => (
+                            <img
+                                key={idx}
+                                src={`http://localhost:4000${link}`}
+                                alt={`registro fotográfico ${idx + 1}`}
+                                className="w-full h-auto rounded-md object-cover mb-4 border border-gray-200"
+                                loading="lazy"
+                            />
+                        ))
+                    )}
+
+                    {/* Localização e Mapa */}
+                    {lat && lng && (
+                        <>
+                            <h3 className="text-xl font-bold mt-10 mb-4 text-black">
+                                Local aproximado
+                            </h3>
+                            <div className="w-full h-[300px] bg-gray-100 border border-gray-200 rounded-md overflow-hidden">
+                                <iframe
+                                    width="100%"
+                                    height="100%"
+                                    frameBorder="0"
+                                    style={{ border: 0 }}
+                                    src={`https://maps.google.com/maps?q=${lat},${lng}&hl=pt-BR&z=15&output=embed`}
+                                    title="mapa ocorrência google maps"
+                                    allowFullScreen
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
 
-                {/* container principal flexível do avada */}
-                <div className="fusion-flex-container mt-12 mb-12 px-6">
-                    <div className="fusion-row gap-10 max-w-[1200px] mx-auto">
+                {/* Coluna da Direita (Descrição e Citação) */}
+                <div className="md:col-span-8 flex flex-col items-start">
 
-                        {/* coluna principal (aproximadamente 2/3) */}
-                        <div className="fusion-layout-column fusion_builder_column w-full md:w-[65%] shrink-0">
-                            <div className="fusion-column-wrapper">
+                    {/* Descrição Detalhada */}
+                    <div
+                        className="text-gray-800 leading-relaxed text-[15px] whitespace-pre-line desc-content w-full"
+                        dangerouslySetInnerHTML={{ __html: registro.descricao }}
+                    />
 
-                                <div className="post-content font-sans">
-                                    <div className="flex justify-start mb-4">
-                                        <span className="text-[#a5002c] text-[13px] font-bold uppercase tracking-[0.2em] border border-[#a5002c] px-4 py-1">
-                                            {registro.categoria}
-                                        </span>
-                                    </div>
+                    {/* Citação Formatada */}
+                    {registro.citacao && (
+                        <div className="mt-16 w-full flex items-start">
+                            <p className="w-[100px] shrink-0 text-gray-800 font-medium">Citação:</p>
+                            <div className="flex-grow border border-gray-200 bg-[#fbfbfb] p-4 text-sm font-mono text-gray-700 relative rounded-md">
 
-                                    <h1 className="text-[#181818] text-4xl font-light mb-6">
-                                        {registro.titulo}
-                                    </h1>
-
-                                    {registro.resumo && (
-                                        <p className="text-xl text-gray-500 font-light italic leading-relaxed mb-8 border-l-4 border-gray-200 pl-6">
-                                            {registro.resumo}
-                                        </p>
-                                    )}
-
-                                    {/* renderização da descrição mantendo as quebras de linha ou html se houver configurado */}
-                                    <div
-                                        className="text-gray-700 leading-loose text-[16px] mb-12 whitespace-pre-line"
-                                        dangerouslySetInnerHTML={{ __html: registro.descricao }}
-                                    />
-
-                                    {/* renderização de coordenadas e mapa google, caso exista */}
-                                    {lat && lng && (
-                                        <div className="mt-12 mb-12">
-                                            <div className="fusion-title fusion-title-size-three mb-6">
-                                                <h3 className="font-semibold text-gray-800 uppercase tracking-widest text-sm m-0">
-                                                    localização de ocorrência
-                                                </h3>
-                                            </div>
-                                            <p className="text-gray-500 mb-4 font-mono text-sm">{registro.coordenadas}</p>
-                                            <div className="w-full h-[400px] bg-gray-100 border border-gray-200">
-                                                <iframe
-                                                    width="100%"
-                                                    height="100%"
-                                                    frameBorder="0"
-                                                    style={{ border: 0 }}
-                                                    src={`https://maps.google.com/maps?q=${lat},${lng}&hl=pt-BR&z=15&output=embed`}
-                                                    title="mapa ocorrência google maps"
-                                                    allowFullScreen
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* grade da galeria na coluna principal */}
-                                    {registro.galeria && registro.galeria.length > 0 && (
-                                        <div className="mt-12 pt-10 border-t border-gray-200">
-                                            <div className="fusion-title fusion-title-size-three mb-8">
-                                                <h3 className="font-semibold text-gray-800 uppercase tracking-widest text-sm m-0">
-                                                    galeria de imagens
-                                                </h3>
-                                            </div>
-                                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {registro.galeria.map((link, idx) => (
-                                                    <a
-                                                        key={idx}
-                                                        href={`http://localhost:4000${link}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="block h-[200px] w-full overflow-hidden bg-gray-100 border border-gray-200 hover:opacity-80 transition-opacity"
-                                                    >
-                                                        <img
-                                                            src={`http://localhost:4000${link}`}
-                                                            alt={`registro fotográfico ${idx + 1}`}
-                                                            className="w-full h-full object-cover"
-                                                            loading="lazy"
-                                                        />
-                                                    </a>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                </div>
+                                {registro.citacao}
                             </div>
                         </div>
-
-                        {/* barra lateral (aproximadamente 1/3) */}
-                        <div className="fusion-layout-column fusion_builder_column w-full md:w-[30%] shrink-0">
-                            <div className="fusion-column-wrapper bg-[#f9f9f9] border-t-4 border-[#a5002c] p-8 shadow-sm">
-                                <h3 className="text-[#181818] font-bold uppercase tracking-widest text-sm mb-6 pb-4 border-b border-gray-200">
-                                    dados sistemáticos / taxonômicos
-                                </h3>
-
-                                <ul className="space-y-4 text-[15px] text-gray-600 font-sans">
-                                    <li>
-                                        <strong className="text-gray-900 block text-xs uppercase tracking-wider mb-1">localidade</strong>
-                                        {registro.localidade}
-                                    </li>
-                                    <li>
-                                        <strong className="text-gray-900 block text-xs uppercase tracking-wider mb-1">data de submissão</strong>
-                                        {new Date(registro.createdAt).toLocaleDateString('pt-BR')}
-                                    </li>
-                                </ul>
-
-                                {registro.tags && (
-                                    <div className="mt-8 pt-6 border-t border-gray-200">
-                                        <strong className="text-gray-900 block text-xs uppercase tracking-wider mb-3">etiquetas (tags)</strong>
-                                        <div className="flex flex-wrap gap-2">
-                                            {registro.tags.split(',').map((tag, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    className="bg-gray-200 text-gray-700 text-[11px] uppercase tracking-wider px-3 py-1 rounded-sm"
-                                                >
-                                                    {tag.trim()}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                    </div>
+                    )}
                 </div>
-
-            </main>
+            </div>
         </div>
     );
 };

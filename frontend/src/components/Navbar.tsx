@@ -1,7 +1,15 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  // esconder botão no criar registro
+  const esconderBotao = location.pathname === '/criar-registro';
+
+  // botão preto nas rotas de acervo
+  const corBotao = location.pathname.startsWith('/acervo/') ? 'bg-black' : 'bg-white';
 
   return (
     <>
@@ -14,14 +22,16 @@ const Navbar = () => {
         />
 
         {/* botao menu */}
-        <button
-          onClick={() => setIsOpen(true)}
-          className="flex flex-col gap-[6px] p-2 focus:outline-none pointer-events-auto"
-        >
-          <span className="block w-[32px] h-[2px] bg-white transition-colors"></span>
-          <span className="block w-[32px] h-[2px] bg-white transition-colors"></span>
-          <span className="block w-[32px] h-[2px] bg-white transition-colors"></span>
-        </button>
+        {!esconderBotao && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="flex flex-col gap-[6px] p-2 focus:outline-none pointer-events-auto"
+          >
+            <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
+            <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
+            <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
+          </button>
+        )}
       </header>
 
       {/* menu fullscrean e comportamento */}

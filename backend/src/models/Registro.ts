@@ -12,6 +12,7 @@ class Registro extends Model {
   declare tags: string;
   declare localidade: string;
   declare coordenadas?: string;
+  declare citacao?: string;
 }
 
 Registro.init(
@@ -59,6 +60,10 @@ Registro.init(
       allowNull: false,
     },
     coordenadas: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    citacao: {
       type: DataTypes.STRING,
       allowNull: true,
     },

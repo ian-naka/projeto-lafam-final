@@ -6,6 +6,7 @@ interface PainelPrincipalProps {
     slug: string;
     resumo: string;
     descricao: string;
+    citacao: string;
   };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   gerarSlug: () => void;
@@ -47,6 +48,22 @@ const PainelPrincipal: React.FC<PainelPrincipalProps> = ({ formData, handleInput
             value={formData.resumo} 
             onChange={handleInputChange} 
             rows={3} 
+            className="w-full border border-gray-300 p-3 focus:border-[#a5002c] outline-none resize-none" 
+          />
+        </div>
+      </div>
+
+      <div className="bg-white shadow-sm border border-gray-200">
+        <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+          <h2 className="font-semibold text-gray-700">citação (opcional)</h2>
+        </div>
+        <div className="p-4">
+          <textarea 
+            name="citacao" 
+            value={formData.citacao} 
+            onChange={handleInputChange} 
+            rows={2} 
+            placeholder="Exemplo de citação bibliográfica ou de fonte"
             className="w-full border border-gray-300 p-3 focus:border-[#a5002c] outline-none resize-none" 
           />
         </div>

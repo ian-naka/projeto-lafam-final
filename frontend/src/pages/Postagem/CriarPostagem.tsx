@@ -19,7 +19,8 @@ const CriarPostagem = () => {
         categoria: 'Flora',
         tags: '',
         localidade: '',
-        coordenadas: ''
+        coordenadas: '',
+        citacao: ''
     });
 
     const [arquivos, setArquivos] = useState<{ thumbFile: File | null; galeriaFiles: FileList | null }>({
@@ -76,6 +77,7 @@ const CriarPostagem = () => {
         payloadFormData.append('categoria', formData.categoria.trim());
         payloadFormData.append('tags', formData.tags.trim());
         payloadFormData.append('localidade', formData.localidade.trim());
+        payloadFormData.append('citacao', formData.citacao.trim());
 
         // append dos arquivos
         if (arquivos.thumbFile) {
