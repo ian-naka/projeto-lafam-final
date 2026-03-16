@@ -1,0 +1,10 @@
+node_modules/
+.env
+
+# Ignorar arquivos do multer mas manter a pasta
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Diretório de build no futuro
+dist/
+build/
