@@ -118,7 +118,7 @@ const CriarPostagem = () => {
             {/* barra superior (header do editor) */}
             <div className="max-w-[1200px] mx-auto flex justify-between items-center mb-6">
                 <h1 className="text-2xl text-[#181818] font-normal">
-                    adicionar novo registro
+                    Adicionar Novo Registro
                 </h1>
                 <div className="flex gap-3">
                     <button

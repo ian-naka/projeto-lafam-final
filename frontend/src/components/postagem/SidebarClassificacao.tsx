@@ -14,11 +14,11 @@ const SidebarClassificacao: React.FC<SidebarClassificacaoProps> = ({ formData, h
     <>
       <div className="bg-white shadow-sm border border-gray-200">
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">
-          classificação
+          Classificação
         </div>
         <div className="p-4 flex flex-col gap-4">
           <div>
-            <label className="text-sm text-gray-600 block mb-1">categoria principal</label>
+            <label className="text-sm text-gray-600 block mb-1">Categoria Principal</label>
             <select name="categoria" value={formData.categoria} onChange={handleInputChange} className="w-full border border-gray-300 p-2 outline-none focus:border-[#a5002c]">
               <option value="Flora">Flora</option>
               <option value="Funga">Funga</option>
@@ -28,11 +28,11 @@ const SidebarClassificacao: React.FC<SidebarClassificacaoProps> = ({ formData, h
             </select>
           </div>
           <div>
-            <label className="text-sm text-gray-600 block mb-1">localidade</label>
+            <label className="text-sm text-gray-600 block mb-1">Localidade</label>
             <input type="text" name="localidade" value={formData.localidade} onChange={handleInputChange} className="w-full border border-gray-300 p-2 outline-none focus:border-[#a5002c]" />
           </div>
           <div>
-            <label className="text-sm text-gray-600 block mb-1">tags (vírgula)</label>
+            <label className="text-sm text-gray-600 block mb-1">Tags (Vírgula)</label>
             <input type="text" name="tags" value={formData.tags} onChange={handleInputChange} className="w-full border border-gray-300 p-2 outline-none focus:border-[#a5002c]" />
           </div>
         </div>
@@ -40,30 +40,30 @@ const SidebarClassificacao: React.FC<SidebarClassificacaoProps> = ({ formData, h
 
       <div className="bg-white shadow-sm border border-gray-200">
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 font-semibold text-gray-700">
-          imagens (upload físico)
+          Imagens (Upload Físico)
         </div>
         <div className="p-4 flex flex-col gap-5">
           <div>
-            <label className="text-sm text-gray-600 block mb-1 font-medium">imagem de capa (thumbnail)</label>
-            <input 
-              type="file" 
-              name="thumbFile" 
+            <label className="text-sm text-gray-600 block mb-1 font-medium">Imagem de Capa (Thumbnail)</label>
+            <input
+              type="file"
+              name="thumbFile"
               accept="image/*"
-              onChange={handleInputChange} 
-              className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c]" 
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c]"
             />
-            <p className="text-[11px] text-gray-500 mt-1">envie a imagem principal a partir do seu computador.</p>
+            <p className="text-[11px] text-gray-500 mt-1">Envie a imagem principal a partir do seu computador.</p>
           </div>
 
           <div className="border-t border-gray-200 pt-4">
-            <label className="text-sm text-gray-600 block mb-1 font-medium">galeria (várias imagens)</label>
-            <input 
-              type="file" 
-              name="galeriaFiles" 
+            <label className="text-sm text-gray-600 block mb-1 font-medium">Galeria (Várias Imagens)</label>
+            <input
+              type="file"
+              name="galeriaFiles"
               accept="image/*"
               multiple
-              onChange={handleInputChange} 
-              className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c]" 
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 p-2 text-sm outline-none focus:border-[#a5002c]"
             />
           </div>
         </div>
