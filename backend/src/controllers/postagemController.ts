@@ -9,7 +9,7 @@ const htmlTagRegex = /<[^>]*>?/g;
 
 // utilitário do zod para garantir que strings longas não contenham tags e remover espaços excessivos
 const sanitizeStringText = z.string().transform((val) => val.trim()).refine((val) => !htmlTagRegex.test(val), {
-  message: "tags html ou scripts não são permitidos neste campo."
+    message: "tags html ou scripts não são permitidos neste campo."
 });
 
 // regex para validação estrita de coordenadas: "lat, lng" aceitando apenas números, ponto, vírgula, espaço e sinal de menos
@@ -49,12 +49,12 @@ export default class postagemController {
                 const thumbFile = files['thumbFile'][0];
                 const filename = `thumb-${Date.now()}.webp`;
                 const filepath = path.join(__dirname, '../../public/uploads', filename);
-                
+
                 await sharp(thumbFile.buffer)
                     .resize(1920, 1080, { fit: 'inside' })
                     .webp({ quality: 80 })
                     .toFile(filepath);
-                
+
                 thumbPath = `/uploads/${filename}`;
             } else {
                 res.status(422).json({ message: 'A imagem de capa (thumbnail) é obrigatória.' });
@@ -67,12 +67,12 @@ export default class postagemController {
                     const file = files['galeriaFiles'][i];
                     const filename = `galeria-${Date.now()}-${i}.webp`;
                     const filepath = path.join(__dirname, '../../public/uploads', filename);
-                    
+
                     await sharp(file.buffer)
                         .resize(1920, 1080, { fit: 'inside' })
                         .webp({ quality: 80 })
                         .toFile(filepath);
-                    
+
                     galeriaPaths.push(`/uploads/${filename}`);
                 }
             }
@@ -94,17 +94,17 @@ export default class postagemController {
             // salva no banco de dados
             const novoRegistro = await Registro.create(payloadCompleto);
 
-            res.status(201).json({ 
-                message: 'Registro criado com sucesso!', 
-                registro: novoRegistro 
+            res.status(201).json({
+                message: 'Registro criado com sucesso!',
+                registro: novoRegistro
             });
 
         } catch (error: any) {
             console.error("ERRO AO CRIAR REGISTRO:", error);
             if (error instanceof ZodError) {
-                res.status(422).json({ 
-                    message: "Dados inválidos", 
-                    errors: error.issues.map((issue) => issue.message) 
+                res.status(422).json({
+                    message: "Dados inválidos",
+                    errors: error.issues.map((issue) => issue.message)
                 });
                 return;
             }
@@ -116,9 +116,9 @@ export default class postagemController {
     static async buscarPorSlug(req: Request, res: Response): Promise<void> {
         try {
             const { slug } = req.params;
-            
+
             const registro = await Registro.findOne({ where: { slug } });
-            
+
             if (!registro) {
                 res.status(404).json({ message: 'Registro não encontrado.' });
                 return;
@@ -128,6 +128,46 @@ export default class postagemController {
         } catch (error) {
             console.error("ERRO AO BUSCAR REGISTRO POR SLUG:", error);
             res.status(500).json({ message: 'Erro interno ao buscar o registro.' });
+        }
+    }
+
+    // buscar registros por categoria com paginação
+    static async buscarPorCategoriaPaginado(req: Request, res: Response): Promise<void> {
+        try {
+            const { categoria } = req.params;
+            const limit = parseInt(req.query.limit as string) || 50;
+            const pagina = parseInt(req.query.pagina as string) || 1;
+            const offset = (pagina - 1) * limit;
+
+            //garante que é uma string
+            const categoriaStr = Array.isArray(categoria) ? categoria[0] : categoria;
+
+            //formata a categoria vinda da URL
+            const categoriaFormatada = categoriaStr.charAt(0).toUpperCase() + categoriaStr.slice(1).toLowerCase();
+
+            //valida se é uma categoria permitida
+            const categoriasPermitidas = ['Flora', 'Funga', 'Biomas', 'Arqueologia', 'Fauna'];
+            if (!categoriasPermitidas.includes(categoriaFormatada)) {
+                res.status(400).json({ message: 'Categoria inválida.' });
+                return;
+            }
+
+            const { count, rows: registros } = await Registro.findAndCountAll({
+                where: { categoria: categoriaFormatada },
+                limit,
+                offset,
+                order: [['createdAt', 'DESC']] //ordenar pelos mais recentes
+            });
+
+            res.status(200).json({
+                registros,
+                total: count,
+                paginaAtual: pagina,
+                totalPaginas: Math.ceil(count / limit)
+            });
+        } catch (error) {
+            console.error("ERRO AO BUSCAR REGISTROS POR CATEGORIA:", error);
+            res.status(500).json({ message: 'Erro interno ao buscar os registros da categoria.' });
         }
     }
 }
