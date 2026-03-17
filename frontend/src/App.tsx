@@ -4,6 +4,7 @@ import Login from './pages/auth/Login';
 import CriarPostagem from './pages/Postagem/CriarPostagem';
 import VisualizarPostagem from './pages/Postagem/VisualizarPostagem';
 import Galeria from './pages/funcionalidades/Galeria';
+import ExibirPostagemGaleria from './pages/funcionalidades/ExibirPostagemGaleria';
 
 //componentes
 import Footer from './components/Footer';
@@ -25,6 +26,7 @@ function App() {
             <Route path="/criar-registro" element={<CriarPostagem />} />
             <Route path="/acervo/:slug" element={<VisualizarPostagem />} />
             <Route path="/galeria" element={<Galeria />} />
+            <Route path="/galeria/:category" element={<ExibirPostagemGaleria />} />
           </Routes>
         </main>
         <Footer />
