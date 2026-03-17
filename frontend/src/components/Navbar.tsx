@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
-  // esconder botão no criar registro
-  const esconderBotao = location.pathname === '/criar-registro';
+  // esconder navbar inteira no criar registro
+  if (location.pathname === '/criar-registro') {
+    return null;
+  }
 
   // botão preto nas rotas de acervo
   const corBotao = location.pathname.startsWith('/acervo/') ? 'bg-black' : 'bg-white';
@@ -22,16 +24,14 @@ const Navbar = () => {
         />
 
         {/* botao menu */}
-        {!esconderBotao && (
-          <button
-            onClick={() => setIsOpen(true)}
-            className="flex flex-col gap-[6px] p-2 focus:outline-none pointer-events-auto"
-          >
-            <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
-            <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
-            <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
-          </button>
-        )}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex flex-col gap-[6px] p-2 focus:outline-none pointer-events-auto"
+        >
+          <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
+          <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
+          <span className={`block w-[32px] h-[2px] ${corBotao} transition-colors`}></span>
+        </button>
       </header>
 
       {/* menu fullscrean e comportamento */}
@@ -49,9 +49,9 @@ const Navbar = () => {
 
         {/* itens de menu */}
         <nav className="flex flex-col items-center gap-6 text-center font-['Heebo','Roboto',sans-serif]">
-          <a href="/galeria" className="text-black text-[22px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-2">
+          <Link to="/galeria" className="text-black text-[22px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-2">
             GALERIA
-          </a>
+          </Link>
           <a href="/busca-acervo" className="text-black text-[22px] font-bold uppercase tracking-[0.2em] transition-colors flex items-center gap-2">
             BUSCA AO ACERVO
           </a>

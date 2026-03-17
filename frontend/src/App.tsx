@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/auth/Login';
 import CriarPostagem from './pages/Postagem/CriarPostagem';
 import VisualizarPostagem from './pages/Postagem/VisualizarPostagem';
+import Galeria from './pages/funcionalidades/Galeria';
 
 //componentes
 import Footer from './components/Footer';
@@ -23,6 +24,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/criar-registro" element={<CriarPostagem />} />
             <Route path="/acervo/:slug" element={<VisualizarPostagem />} />
+            <Route path="/galeria" element={<Galeria />} />
           </Routes>
         </main>
         <Footer />
