@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z, ZodError } from 'zod';
 import Registro from '../models/Registro';
-import { getImagemStream, preCacheImagem } from '../services/googleDriveService';
+import { getImagemStream, getImagemOriginalStream, preCacheImagem } from '../services/googleDriveService';
 
 // regex para detectar qualquer presença de tags html
 const htmlTagRegex = /<[^>]*>?/g;
@@ -50,7 +50,6 @@ export default class postagemController {
             // salva no banco de dados (o payload ja contém thumb como string e galeria como array de strings)
             const novoRegistro = await Registro.create(dadosValidados);
 
-            // TAREFA 1: Pre-caching das imagens (disparado em background)
             if (dadosValidados.thumb) {
                 preCacheImagem(dadosValidados.thumb);
             }
@@ -80,17 +79,33 @@ export default class postagemController {
     static async buscarImagem(req: Request, res: Response): Promise<void> {
         try {
             const { id } = req.params;
-            const { getImagemStream } = require('../services/googleDriveService');
             
             // Otimização Máxima: Define WebP e Cache agressivo
             res.setHeader('Content-Type', 'image/webp');
             res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
             
-            await getImagemStream(id, res);
+            await getImagemStream(id as string, res);
         } catch (error) {
             console.error("ERRO NO PROXY DE IMAGEM:", error);
             if (!res.headersSent) {
                 res.status(404).json({ message: 'Imagem não encontrada no Google Drive.' });
+            }
+        }
+    }
+
+    //busca imagem original do Google Drive
+    static async buscarImagemOriginal(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            if (!id) {
+                res.status(400).json({ message: 'ID da imagem não fornecido.' });
+                return;
+            }
+            await getImagemOriginalStream(id as string, res);
+        } catch (error) {
+            console.error("ERRO NO PROXY DE IMAGEM ORIGINAL:", error);
+            if (!res.headersSent) {
+                res.status(500).json({ message: 'Erro ao carregar imagem original.' });
             }
         }
     }

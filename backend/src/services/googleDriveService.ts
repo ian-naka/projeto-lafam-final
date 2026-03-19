@@ -13,20 +13,19 @@ const auth = new google.auth.GoogleAuth({
 
 const drive = google.drive({ version: 'v3', auth });
 
-// Caminho da pasta de cache
+// caminho da pasta de cache
 const CACHE_DIR = path.join(__dirname, '../../public/uploads/cache');
 
-// Garante que a pasta de cache exista
+// garante que a pasta de cache exista
 if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 }
 
-/**
- * Função para gerar o cache de uma imagem antecipadamente.
- */
+
+//função para gerar o cache de uma imagem antecipadamente.
 export const preCacheImagem = async (fileId: string) => {
   const cachePath = path.join(CACHE_DIR, `${fileId}.webp`);
-  
+
   // Se já existe, não faz nada
   if (fs.existsSync(cachePath)) return;
 
@@ -38,8 +37,12 @@ export const preCacheImagem = async (fileId: string) => {
 
     const transformer = sharp()
       .rotate()
-      .resize({ width: 1200, withoutEnlargement: true, fit: 'inside' })
-      .webp({ quality: 75 });
+      .resize({ width: 2048, withoutEnlargement: true, fit: 'inside' })
+      .webp({ quality: 90, effort: 4 });
+
+    // tratamento de erro no download/transformação
+    response.data.on('error', (err: any) => console.error(`✗ Erro no stream do Drive (${fileId}):`, err.message));
+    transformer.on('error', (err: any) => console.error(`✗ Erro no Sharp (${fileId}):`, err.message));
 
     await response.data.pipe(transformer).toFile(cachePath);
     console.log(`✓ Pre-cache concluído: ${fileId}`);
@@ -48,20 +51,20 @@ export const preCacheImagem = async (fileId: string) => {
   }
 };
 
-/**
- * Streams a file from Google Drive, optimizes with Sharp, caches to disk, and sends to response.
- */
+
+ // google drive -> sharp -> cache -> resposta
+
 export const getImagemStream = async (fileId: string, res: Response) => {
   const cachePath = path.join(CACHE_DIR, `${fileId}.webp`);
 
-  // 1. Verificar se já existe no cache
+  // verifica se ja existe no cache
   if (fs.existsSync(cachePath)) {
     console.log(`✓ Servindo do Cache Local: ${fileId}`);
     res.setHeader('Content-Type', 'image/webp');
     return fs.createReadStream(cachePath).pipe(res);
   }
 
-  // 2. Se não existir, buscar no Google Drive
+  // se não existir, buscar no Google Drive
   console.log(`⚠ Baixando do Google e Gerando Cache: ${fileId}`);
   try {
     const response = await drive.files.get(
@@ -69,21 +72,38 @@ export const getImagemStream = async (fileId: string, res: Response) => {
       { responseType: 'stream' }
     );
 
-    // Transformador Sharp: Redimensiona (1200px), Rotate, WebP (75)
+    //transformador sharp otimizado para qualidade e desempenho, focado em telas modernas de alta resolução
     const transformer = sharp()
       .rotate()
-      .resize({ width: 1200, withoutEnlargement: true, fit: 'inside' })
-      .webp({ quality: 75 });
+      .resize({ width: 2560, withoutEnlargement: true, fit: 'inside' })
+      .sharpen({ sigma: 1.2, m1: 0, m2: 2 })
+      .webp({
+        quality: 95, 
+        effort: 4,   
+        smartSubsample: true 
+      });
 
-    // Definir cabeçalho antes do pipe
+    //tratamento de erro no download do drive
+    response.data.on('error', (err: any) => {
+      console.error('✗ Erro no stream do Google Drive:', err.message);
+      if (!res.headersSent) res.status(503).send('Erro na origem dos dados.');
+    });
+
+    //tratamento de erro no sharp
+    transformer.on('error', (err: any) => {
+      console.error('✗ Erro no processamento Sharp:', err.message);
+      if (!res.headersSent) res.status(500).send('Erro ao processar imagem.');
+    });
+
+    //definir cabeçalho antes do pipe
     res.setHeader('Content-Type', 'image/webp');
 
-    // Pipeline: Drive -> Sharp -> [Arquivo Cache + Resposta Express]
+    //pipeline: Drive -> Sharp -> [Arquivo Cache + Resposta Express]
     const processedStream = response.data.pipe(transformer);
 
-    // Salvar no cache e enviar para a resposta simultaneamente
+    //salvar no cache e enviar para a resposta simultaneamente
     processedStream
-      .clone() 
+      .clone()
       .toFile(cachePath)
       .catch(err => console.error('✗ Erro ao salvar cache:', err));
 
@@ -95,4 +115,34 @@ export const getImagemStream = async (fileId: string, res: Response) => {
       res.status(404).send('Erro ao buscar imagem ou arquivo não encontrado.');
     }
   }
+};
+
+ // obtem o stream da imagem original diretamente do Drive
+ 
+export const getImagemOriginalStream = async (fileId: string, res: Response): Promise<void> => {
+    try {
+        const response = await drive.files.get(
+            { fileId, alt: 'media', supportsAllDrives: true },
+            { responseType: 'stream' }
+        );
+
+        //define headers básicos
+        res.setHeader('Content-Type', 'image/jpeg'); // Fallback comum
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+
+        const dataStream = response.data as any;
+
+        dataStream
+            .on('error', (err: any) => {
+                console.error('✗ Erro no stream do Google Drive (Original):', err);
+                if (!res.headersSent) res.status(500).send('Erro no processamento da imagem original.');
+            })
+            .pipe(res);
+
+    } catch (error: any) {
+        console.error('✗ Erro ao buscar imagem original no Google Drive:', error.message);
+        if (!res.headersSent) {
+            res.status(error.code || 500).send(error.message || 'Erro ao buscar imagem original.');
+        }
+    }
 };
