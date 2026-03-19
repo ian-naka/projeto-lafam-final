@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { z, ZodError } from 'zod';
 import Registro from '../models/Registro';
-import sharp from 'sharp';
-import path from 'path';
+import { getImagemStream, preCacheImagem } from '../services/googleDriveService';
 
 // regex para detectar qualquer presença de tags html
 const htmlTagRegex = /<[^>]*>?/g;
@@ -28,7 +27,9 @@ const postagemSchema = z.object({
         z.string().regex(coordenadasRegex, "As coordenadas devem estar no formato numérico: 'latitude, longitude' (ex: -21.7664, -43.3444)"),
         z.literal("")
     ]).optional(),
-    citacao: z.string().optional()
+    citacao: z.string().optional(),
+    thumb: z.string().min(1, "A imagem de capa (Google Drive ID) é obrigatória."),
+    galeria: z.array(z.string()).optional()
 });
 
 export default class postagemController {
@@ -36,46 +37,8 @@ export default class postagemController {
     //criar um novo registro
     static async criar(req: Request, res: Response): Promise<void> {
         try {
-            //valida os dados textuais que vieram do frontend
+            //valida os dados textuais e os IDs do Drive que vieram do frontend via JSON
             const dadosValidados = postagemSchema.parse(req.body);
-
-            // processa buffers de imagem usando multer memoryStorage
-            let thumbPath = '';
-            let galeriaPaths: string[] = [];
-            const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-
-            // thumbnail (obrigatória)
-            if (files && files['thumbFile'] && files['thumbFile'][0]) {
-                const thumbFile = files['thumbFile'][0];
-                const filename = `thumb-${Date.now()}.webp`;
-                const filepath = path.join(__dirname, '../../public/uploads', filename);
-
-                await sharp(thumbFile.buffer)
-                    .resize(1920, 1080, { fit: 'inside' })
-                    .webp({ quality: 80 })
-                    .toFile(filepath);
-
-                thumbPath = `/uploads/${filename}`;
-            } else {
-                res.status(422).json({ message: 'A imagem de capa (thumbnail) é obrigatória.' });
-                return;
-            }
-
-            // galeria (opcional, array de imagens)
-            if (files && files['galeriaFiles']) {
-                for (let i = 0; i < files['galeriaFiles'].length; i++) {
-                    const file = files['galeriaFiles'][i];
-                    const filename = `galeria-${Date.now()}-${i}.webp`;
-                    const filepath = path.join(__dirname, '../../public/uploads', filename);
-
-                    await sharp(file.buffer)
-                        .resize(1920, 1080, { fit: 'inside' })
-                        .webp({ quality: 80 })
-                        .toFile(filepath);
-
-                    galeriaPaths.push(`/uploads/${filename}`);
-                }
-            }
 
             // verifica se o URL já está sendo utilizado
             const slugExiste = await Registro.findOne({ where: { slug: dadosValidados.slug } });
@@ -84,15 +47,16 @@ export default class postagemController {
                 return;
             }
 
-            // junta dados do formulário com caminhos dos arquivos físicos
-            const payloadCompleto = {
-                ...dadosValidados,
-                thumb: thumbPath,
-                galeria: galeriaPaths
-            };
+            // salva no banco de dados (o payload ja contém thumb como string e galeria como array de strings)
+            const novoRegistro = await Registro.create(dadosValidados);
 
-            // salva no banco de dados
-            const novoRegistro = await Registro.create(payloadCompleto);
+            // TAREFA 1: Pre-caching das imagens (disparado em background)
+            if (dadosValidados.thumb) {
+                preCacheImagem(dadosValidados.thumb);
+            }
+            if (dadosValidados.galeria && dadosValidados.galeria.length > 0) {
+                dadosValidados.galeria.forEach(id => preCacheImagem(id));
+            }
 
             res.status(201).json({
                 message: 'Registro criado com sucesso!',
@@ -111,6 +75,26 @@ export default class postagemController {
             res.status(500).json({ message: 'Erro interno ao salvar o registro.' });
         }
     }
+
+    // proxy para exibir imagem do google drive
+    static async buscarImagem(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.params;
+            const { getImagemStream } = require('../services/googleDriveService');
+            
+            // Otimização Máxima: Define WebP e Cache agressivo
+            res.setHeader('Content-Type', 'image/webp');
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+            
+            await getImagemStream(id, res);
+        } catch (error) {
+            console.error("ERRO NO PROXY DE IMAGEM:", error);
+            if (!res.headersSent) {
+                res.status(404).json({ message: 'Imagem não encontrada no Google Drive.' });
+            }
+        }
+    }
+
 
     // buscar registro público por slug
     static async buscarPorSlug(req: Request, res: Response): Promise<void> {

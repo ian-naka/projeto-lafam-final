@@ -18,7 +18,7 @@ const PostGaleriaCard: React.FC<PostGaleriaCardProps> = ({ post }) => {
         <Link to={`/acervo/${post.slug}`} className="block">
             <div className="bg-transparent border-none overflow-visible relative transition-transform duration-300 hover:-translate-y-2 cursor-pointer group">
                 <img 
-                    src={`${baseUrl}${post.thumb}`} 
+                    src={`${baseUrl}/registros/imagens/${post.thumb}`} 
                     alt={post.titulo} 
                     className="relative z-10 w-full aspect-[4/3] object-cover shadow-lg" 
                 />

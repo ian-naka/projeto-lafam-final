@@ -98,7 +98,7 @@ const VisualizarPostagem = () => {
                         registro.galeria.map((link, idx) => (
                             <img
                                 key={idx}
-                                src={`http://localhost:4000${link}`}
+                                src={`http://localhost:4000/registros/imagens/${link}`}
                                 alt={`registro fotográfico ${idx + 1}`}
                                 className="w-full h-auto rounded-md object-cover mb-4 border border-gray-200"
                                 loading="lazy"

@@ -15,7 +15,7 @@ const CriarPostagem = () => {
         resumo: '',
         descricao: '',
         thumb: '',
-        galeriaLinks: '',
+        galeria: [] as string[],
         categoria: 'Flora',
         tags: '',
         localidade: '',
@@ -23,25 +23,10 @@ const CriarPostagem = () => {
         citacao: ''
     });
 
-    const [arquivos, setArquivos] = useState<{ thumbFile: File | null; galeriaFiles: FileList | null }>({
-        thumbFile: null,
-        galeriaFiles: null
-    });
-
     const { setFlashMessage } = useFlashMessage();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type } = e.target;
-
-        // tratamento especial para inputs de arquivo
-        if (type === 'file') {
-            const inputElement = e.target as HTMLInputElement;
-            setArquivos({
-                ...arquivos,
-                [name]: name === 'thumbFile' && inputElement.files ? inputElement.files[0] : inputElement.files
-            });
-            return;
-        }
+        const { name, value } = e.target;
 
         let valorVigente = value;
 
@@ -67,43 +52,41 @@ const CriarPostagem = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // sanitização e preparo do payload em FormData
-        const payloadFormData = new FormData();
-        payloadFormData.append('titulo', sanitizarTextoSimples(formData.titulo));
-        payloadFormData.append('resumo', sanitizarTextoSimples(formData.resumo));
-        payloadFormData.append('coordenadas', formData.coordenadas.trim());
-        payloadFormData.append('slug', formData.slug.trim());
-        payloadFormData.append('descricao', formData.descricao.trim());
-        payloadFormData.append('categoria', formData.categoria.trim());
-        payloadFormData.append('tags', formData.tags.trim());
-        payloadFormData.append('localidade', formData.localidade.trim());
-        payloadFormData.append('citacao', formData.citacao.trim());
-
-        // append dos arquivos
-        if (arquivos.thumbFile) {
-            payloadFormData.append('thumbFile', arquivos.thumbFile);
-        }
-
-        if (arquivos.galeriaFiles) {
-            for (let i = 0; i < arquivos.galeriaFiles.length; i++) {
-                payloadFormData.append('galeriaFiles', arquivos.galeriaFiles[i]);
-            }
-        }
+        // preparo do payload em JSON
+        const payload = {
+            ...formData,
+            titulo: sanitizarTextoSimples(formData.titulo),
+            resumo: sanitizarTextoSimples(formData.resumo),
+            coordenadas: formData.coordenadas.trim(),
+            slug: formData.slug.trim(),
+            descricao: formData.descricao.trim(),
+            categoria: formData.categoria.trim(),
+            tags: formData.tags.trim(),
+            localidade: formData.localidade.trim(),
+            citacao: formData.citacao.trim(),
+        };
 
         try {
             const token = localStorage.getItem('token');
             const resposta = await fetch('http://localhost:4000/registros', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
-                body: payloadFormData
+                body: JSON.stringify(payload)
             });
 
             const dados = await resposta.json();
 
-            // lida com o erro 404 ou outros erros do servidor
-            if (!resposta.ok) throw new Error(`erro ${resposta.status}: ${dados.message || 'falha na comunicação com o servidor.'}`);
+            // LÓGICA ATUALIZADA: Captura os erros detalhados do Zod
+            if (!resposta.ok) {
+                if (dados.errors && Array.isArray(dados.errors)) {
+                    // Se houver vários erros, junta eles com uma barra
+                    throw new Error(dados.errors.join(' | ')); 
+                }
+                throw new Error(dados.message || 'Falha na comunicação com o servidor.');
+            }
 
             setFlashMessage('registro postado com sucesso!', 'success');
             navigate(`/acervo/${formData.slug.trim()}`);
@@ -145,6 +128,7 @@ const CriarPostagem = () => {
                 <div className="w-full lg:w-[320px] flex flex-col gap-6 shrink-0">
                     <SidebarClassificacao
                         formData={formData}
+                        setFormData={setFormData}
                         handleInputChange={handleInputChange}
                     />
 

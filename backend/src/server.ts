@@ -31,7 +31,6 @@ app.use(cors({
 }));
 
 app.use(express.json()); //permite ler o body em json
-app.use('/uploads', express.static(path.join(__dirname, '../public/uploads'))); // servindo arquivos fisicos de upload
 app.use(cookieParser()); //manipulacao dos HttpOnly Cookies para o JWT
 
 //protecao contra ataques
