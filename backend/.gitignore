@@ -1,9 +1,12 @@
 node_modules/
 .env
+google-credentials.json
+public/uploads/*.webp
+public/uploads/*/*.webp
 
-# Ignorar arquivos do multer mas manter a pasta
-public/uploads/*
-!public/uploads/.gitkeep
+# Repomix
+repomix-output.*
+.repomix*
 
 # Diretório de build no futuro
 dist/
