@@ -3,6 +3,7 @@ node_modules/
 
 #variaveis de ambiente
 .env
+*.md
 .env.*
 
 #arquivos compilados
