@@ -4,6 +4,7 @@ import sequelize from '../db/conn';
 class Registro extends Model {
   declare id: number;
   declare titulo: string;
+  declare slug: string;
   declare resumo: string;
   declare descricao: string;
   declare thumb: string;

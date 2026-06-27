@@ -5,11 +5,34 @@ import { Response } from 'express';
 import sharp from 'sharp';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive.readonly'];
+const caminhoCredenciais = path.join(__dirname, '../../google-credentials.json');
+const emailContaServico = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+const chavePrivada = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, '../../google-credentials.json'),
-  scopes: SCOPES,
-});
+function criarAuthGoogle() {
+  if (emailContaServico && chavePrivada) {
+    return new google.auth.GoogleAuth({
+      credentials: {
+        client_email: emailContaServico,
+        private_key: chavePrivada,
+      },
+      scopes: SCOPES,
+    });
+  }
+
+  if (fs.existsSync(caminhoCredenciais)) {
+    return new google.auth.GoogleAuth({
+      keyFile: caminhoCredenciais,
+      scopes: SCOPES,
+    });
+  }
+
+  throw new Error(
+    'Credenciais do Google Drive não configuradas. Defina GOOGLE_SERVICE_ACCOUNT_EMAIL e GOOGLE_PRIVATE_KEY no .env ou forneça google-credentials.json.'
+  );
+}
+
+const auth = criarAuthGoogle();
 
 const drive = google.drive({ version: 'v3', auth });
 

@@ -15,6 +15,7 @@ import Registro from './models/Registro';
 //importa controller
 import authRoutes from './routes/authRoutes';
 import postagemRoutes from './routes/postagemRoutes';
+import categoriaRoutes from './routes/categoriaRoutes';
 
 import { conexaoBanco } from './db/conn';
 
@@ -42,15 +43,24 @@ const limite = rateLimit({
 //app.use(limite);
 
 const PORT = process.env.PORT || 4000;
+const ambiente = process.env.NODE_ENV || 'development';
 
 app.use('/auth', authRoutes);
 app.use('/registros', postagemRoutes);
+app.use('/categorias', categoriaRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/postagens', postagemRoutes);
+app.use('/api/categorias', categoriaRoutes);
 
 //testa conexao com o banco
 conexaoBanco().then(async () => {
     console.log("Verificando modelo:", Admin.name);
     console.log('Verificando modelo:', Registro.name)
-    await sequelize.sync({ alter: true });
+    if (ambiente === 'production') {
+        await sequelize.sync();
+    } else {
+        await sequelize.sync({ alter: true });
+    }
     app.listen(PORT, () => {
         console.log(`Servidor rodando na porta: ${PORT}`);
     });
