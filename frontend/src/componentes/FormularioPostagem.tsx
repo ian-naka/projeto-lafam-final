@@ -1,15 +1,16 @@
+import { useTranslation } from 'react-i18next';
 import BlocoCampo from './BlocoCampo';
 import ListaCategoriasCheckbox from './ListaCategoriasCheckbox';
 import MapaVisual from './MapaVisual';
 import SeletorImagensDrive from './SeletorImagensDrive';
-import type { Categoria } from '../tipos/categoria';
+import type { Categoria, CategoriaDisponivel } from '@lafam/back-front';
 
 export interface DadosFormularioPostagem {
   titulo: string;
   slug: string;
   resumo: string;
   descricao: string;
-  categoria: string;
+  categoria: CategoriaDisponivel;
   localidade: string;
   tags: string;
   latitude: string;
@@ -19,6 +20,8 @@ export interface DadosFormularioPostagem {
   galeria: string[];
 }
 
+export type CampoTextoFormularioPostagem = Exclude<keyof DadosFormularioPostagem, 'categoria' | 'galeria'>;
+
 interface FormularioPostagemProps {
   formulario: DadosFormularioPostagem;
   categoriasDisponiveis: Categoria[];
@@ -26,11 +29,11 @@ interface FormularioPostagemProps {
   tituloPagina: string;
   descricaoPagina: string;
   textoBotao: string;
-  aoAtualizarCampo: (chave: keyof DadosFormularioPostagem, valor: string) => void;
+  aoAtualizarCampo: (chave: CampoTextoFormularioPostagem, valor: string) => void;
   aoDefinirThumb: (id: string) => void;
   aoDefinirGaleria: (ids: string[]) => void;
   aoRemoverImagem: (id: string) => void;
-  aoSelecionarCategoria: (categoria: string) => void;
+  aoSelecionarCategoria: (categoria: CategoriaDisponivel) => void;
   aoEnviar: (event: React.FormEvent) => void;
 }
 
@@ -48,6 +51,8 @@ const FormularioPostagem = ({
   aoSelecionarCategoria,
   aoEnviar,
 }: FormularioPostagemProps) => {
+  const { t } = useTranslation();
+
   return (
     <section className="pagina">
       <div className="pagina__topo pagina__topo--entre">
@@ -59,7 +64,7 @@ const FormularioPostagem = ({
 
       <form onSubmit={aoEnviar} className="formulario formulario--postagem">
         <div className="painel">
-          <BlocoCampo rotulo="Título">
+          <BlocoCampo rotulo={t('postForm.title')}>
             <input
               value={formulario.titulo}
               onChange={(e) => aoAtualizarCampo('titulo', e.target.value)}
@@ -67,7 +72,7 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Slug">
+          <BlocoCampo rotulo={t('postForm.slug')}>
             <input
               value={formulario.slug}
               onChange={(e) => aoAtualizarCampo('slug', e.target.value)}
@@ -75,7 +80,7 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Resumo">
+          <BlocoCampo rotulo={t('postForm.summary')}>
             <textarea
               value={formulario.resumo}
               onChange={(e) => aoAtualizarCampo('resumo', e.target.value)}
@@ -84,7 +89,7 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Descrição">
+          <BlocoCampo rotulo={t('postForm.description')}>
             <textarea
               value={formulario.descricao}
               onChange={(e) => aoAtualizarCampo('descricao', e.target.value)}
@@ -93,7 +98,7 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Citação">
+          <BlocoCampo rotulo={t('postForm.quote')}>
             <textarea
               value={formulario.citacao}
               onChange={(e) => aoAtualizarCampo('citacao', e.target.value)}
@@ -103,7 +108,7 @@ const FormularioPostagem = ({
         </div>
 
         <div className="painel">
-          <BlocoCampo rotulo="Categoria">
+          <BlocoCampo rotulo={t('postForm.category')}>
             <ListaCategoriasCheckbox
               categoriasDisponiveis={categoriasDisponiveis}
               categoriaSelecionada={formulario.categoria}
@@ -111,15 +116,15 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Tags">
+          <BlocoCampo rotulo={t('postForm.tags')}>
             <input
               value={formulario.tags}
               onChange={(e) => aoAtualizarCampo('tags', e.target.value)}
-              placeholder="fungos, mata-atlantica"
+              placeholder={t('postForm.tagsPlaceholder')}
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Localidade">
+          <BlocoCampo rotulo={t('postForm.location')}>
             <input
               value={formulario.localidade}
               onChange={(e) => aoAtualizarCampo('localidade', e.target.value)}
@@ -127,7 +132,7 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Latitude">
+          <BlocoCampo rotulo={t('postForm.latitude')}>
             <input
               value={formulario.latitude}
               onChange={(e) => aoAtualizarCampo('latitude', e.target.value)}
@@ -135,7 +140,7 @@ const FormularioPostagem = ({
             />
           </BlocoCampo>
 
-          <BlocoCampo rotulo="Longitude">
+          <BlocoCampo rotulo={t('postForm.longitude')}>
             <input
               value={formulario.longitude}
               onChange={(e) => aoAtualizarCampo('longitude', e.target.value)}
@@ -147,7 +152,7 @@ const FormularioPostagem = ({
         </div>
 
         <div className="painel">
-          <h2>Imagens</h2>
+          <h2>{t('postForm.images')}</h2>
           <SeletorImagensDrive
             thumb={formulario.thumb}
             galeria={formulario.galeria}
@@ -159,7 +164,7 @@ const FormularioPostagem = ({
 
         <div className="painel painel--acoes">
           <button type="submit" className="botao botao--primario" disabled={carregando}>
-            {carregando ? 'Salvando...' : textoBotao}
+            {carregando ? t('postForm.saving') : textoBotao}
           </button>
         </div>
       </form>

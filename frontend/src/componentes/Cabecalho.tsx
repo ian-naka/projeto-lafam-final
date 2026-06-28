@@ -1,10 +1,12 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { encerrarSessao, usuarioEstaAutenticado } from '../ajudantes/autenticacao';
 
 const Cabecalho = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const estaAutenticado = usuarioEstaAutenticado();
+  const { t } = useTranslation();
 
   const sair = () => {
     encerrarSessao();
@@ -17,29 +19,29 @@ const Cabecalho = () => {
     <header className="cabecalho">
       <div className="cabecalho__miolo">
         <Link to="/" className="cabecalho__marca">
-          LAFAM
+          {t('common.appName')}
         </Link>
 
         <nav className="cabecalho__nav">
-          <Link to="/">Início</Link>
-          <Link to="/galeria">Galeria</Link>
+          <Link to="/">{t('navigation.home')}</Link>
+          <Link to="/galeria">{t('navigation.gallery')}</Link>
           {estaAutenticado ? (
             <>
-              <Link to="/admin/postagens">Admin</Link>
-              <Link to="/admin/nova-postagem">Nova postagem</Link>
+              <Link to="/admin/postagens">{t('navigation.admin')}</Link>
+              <Link to="/admin/nova-postagem">{t('navigation.newPost')}</Link>
               <button type="button" onClick={sair} className="cabecalho__botao-link">
-                Sair
+                {t('common.logout')}
               </button>
             </>
           ) : (
-            <Link to="/login">Login</Link>
+            <Link to="/login">{t('common.login')}</Link>
           )}
         </nav>
       </div>
 
       {rotasAdmin && (
         <div className="cabecalho__faixa-admin">
-          Área administrativa
+          {t('common.adminArea')}
         </div>
       )}
     </header>

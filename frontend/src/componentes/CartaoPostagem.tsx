@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { montarUrlApi } from '../servicos/api';
-import type { PostagemResumo } from '../tipos/postagem';
+import type { PostagemResumo } from '@lafam/back-front';
 
 const CartaoPostagem = ({ postagem }: { postagem: PostagemResumo }) => {
   return (

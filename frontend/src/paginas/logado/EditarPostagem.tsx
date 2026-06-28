@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
-import FormularioPostagem, { type DadosFormularioPostagem } from '../../componentes/FormularioPostagem';
+import FormularioPostagem, {
+  type CampoTextoFormularioPostagem,
+  type DadosFormularioPostagem,
+} from '../../componentes/FormularioPostagem';
 import { obterToken } from '../../ajudantes/autenticacao';
 import {
   formularioPostagemInicial,
@@ -11,8 +14,7 @@ import {
 import { useNotificacao } from '../../contextos/NotificacaoContexto';
 import { listarCategorias } from '../../servicos/categorias';
 import { atualizarPostagem, buscarPostagemPorSlug } from '../../servicos/postagens';
-import type { Categoria } from '../../tipos/categoria';
-import type { PostagemDetalhe } from '../../tipos/postagem';
+import type { Categoria, CategoriaDisponivel, PostagemDetalhe } from '@lafam/back-front';
 
 const EditarPostagem = () => {
   const navigate = useNavigate();
@@ -50,7 +52,7 @@ const EditarPostagem = () => {
     carregar();
   }, [slug, mostrarNotificacao]);
 
-  const atualizarCampo = (chave: keyof DadosFormularioPostagem, valor: string) => {
+  const atualizarCampo = (chave: CampoTextoFormularioPostagem, valor: string) => {
     setFormulario((estadoAtual) => ({
       ...estadoAtual,
       [chave]: valor,
@@ -85,8 +87,11 @@ const EditarPostagem = () => {
     });
   };
 
-  const selecionarCategoria = (categoria: string) => {
-    atualizarCampo('categoria', categoria);
+  const selecionarCategoria = (categoria: CategoriaDisponivel) => {
+    setFormulario((estadoAtual) => ({
+      ...estadoAtual,
+      categoria,
+    }));
   };
 
   const enviar = async (event: React.FormEvent) => {

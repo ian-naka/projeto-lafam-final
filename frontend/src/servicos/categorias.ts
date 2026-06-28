@@ -1,18 +1,13 @@
-import type { Categoria } from '../tipos/categoria';
+import * as contratosLafam from '@lafam/back-front';
+import type { Categoria, RespostaListaCategorias } from '@lafam/back-front';
 import { montarUrlApi } from './api';
 
-const categoriasPadrao: Categoria[] = [
-  { nome: 'Flora', slug: 'flora' },
-  { nome: 'Funga', slug: 'funga' },
-  { nome: 'Biomas', slug: 'biomas' },
-  { nome: 'Arqueologia', slug: 'arqueologia' },
-  { nome: 'Fauna', slug: 'fauna' },
-];
+const { categoriasPadrao } = contratosLafam;
 
 export async function listarCategorias(): Promise<Categoria[]> {
   try {
     const resposta = await fetch(montarUrlApi('/categorias'));
-    const dados = await resposta.json();
+    const dados = await resposta.json() as RespostaListaCategorias;
     return dados.categorias || categoriasPadrao;
   } catch (error) {
     console.error(error);

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import CartaoPostagem from '../componentes/CartaoPostagem';
 import { listarPostagens } from '../servicos/postagens';
-import type { PostagemResumo } from '../tipos/postagem';
+import type { PostagemResumo } from '@lafam/back-front';
 
 const ListaPostagensCategoria = () => {
   const { slugCategoria } = useParams({ strict: false }) as { slugCategoria?: string };
@@ -10,6 +11,7 @@ const ListaPostagensCategoria = () => {
   const [postagens, setPostagens] = useState<PostagemResumo[]>([]);
   const [totalPaginas, setTotalPaginas] = useState(1);
   const [carregando, setCarregando] = useState(true);
+  const { t } = useTranslation();
 
   const paginaAtual = Number(new URLSearchParams(window.location.search).get('pagina') || '1');
 
@@ -46,13 +48,13 @@ const ListaPostagensCategoria = () => {
   return (
     <section className="pagina">
       <div className="pagina__topo">
-        <h1>Categoria: {slugCategoria}</h1>
+        <h1>{t('gallery.categoryTitle', { slug: slugCategoria })}</h1>
       </div>
 
       {carregando ? (
-        <div className="painel">Carregando postagens...</div>
+        <div className="painel">{t('gallery.loadingPosts')}</div>
       ) : postagens.length === 0 ? (
-        <div className="painel">Nenhuma postagem encontrada para esta categoria.</div>
+        <div className="painel">{t('gallery.emptyCategory')}</div>
       ) : (
         <>
           <div className="grade-postagens">
@@ -68,15 +70,15 @@ const ListaPostagensCategoria = () => {
                 onClick={() => atualizarPagina(Math.max(1, paginaAtual - 1))}
                 disabled={paginaAtual <= 1}
               >
-                Anterior
+                {t('gallery.previousPage')}
               </button>
-              <span>Página {paginaAtual} de {totalPaginas}</span>
+              <span>{t('gallery.pageStatus', { current: paginaAtual, total: totalPaginas })}</span>
               <button
                 type="button"
                 onClick={() => atualizarPagina(Math.min(totalPaginas, paginaAtual + 1))}
                 disabled={paginaAtual >= totalPaginas}
               >
-                Próxima
+                {t('gallery.nextPage')}
               </button>
             </div>
           )}

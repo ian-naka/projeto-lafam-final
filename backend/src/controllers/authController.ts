@@ -3,7 +3,8 @@
 import { Request, Response } from 'express'; //requisicao e resposta
 import bcrypt from 'bcryptjs'; // criptografar
 import jwt from 'jsonwebtoken'; //token para validar sessao
-import { z, ZodError } from 'zod'; //biblioteca para criar regras de validacao
+import { ZodError } from 'zod'; //biblioteca para criar regras de validacao
+import { loginSchema, registroAdminSchema } from '@lafam/back-front';
 import Admin from '../models/Admin';
 import { encriptar, desencriptar } from '../helpers/criptoHelper'
 
@@ -14,28 +15,12 @@ if (!jwtSecret) {
     throw new Error("ERRO CRÍTICO: JWT_SECRET deve estar definido no .env");
 }
 
-// REGRAS DE VALIDACAO DO ZOD
-const registroSchema = z.object({
-    nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
-    email: z.string().email("Insira um e-mail válido."),
-    senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
-    confirmarSenha: z.string()
-}).refine((data) => data.senha === data.confirmarSenha, {
-    message: "As senhas não coincidem.",
-    path: ["confirmarSenha"], 
-});
-
-const loginSchema = z.object({
-    email: z.string().email("Insira um e-mail válido."),
-    senha: z.string().min(1, "A senha é obrigatória.")
-});
-
 export default class authController {
 
     // Cadastro do Admin
     static async registrar(req: Request, res: Response): Promise<void> {
         try {
-            const { nome, email, senha } = registroSchema.parse(req.body); // az as variaveis nome, email e senha receberem essas consts na resposta da requisicao
+            const { nome, email, senha } = registroAdminSchema.parse(req.body); // az as variaveis nome, email e senha receberem essas consts na resposta da requisicao
 
             //encripta o email para poder realizar a busca e o salvamento
             const emailEncriptado = encriptar(email);

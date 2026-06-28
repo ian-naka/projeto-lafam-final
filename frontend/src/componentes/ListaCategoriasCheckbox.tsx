@@ -1,9 +1,9 @@
-import type { Categoria } from '../tipos/categoria';
+import type { Categoria, CategoriaDisponivel } from '@lafam/back-front';
 
 interface ListaCategoriasCheckboxProps {
   categoriasDisponiveis: Categoria[];
-  categoriaSelecionada: string;
-  aoSelecionar: (categoria: string) => void;
+  categoriaSelecionada: CategoriaDisponivel;
+  aoSelecionar: (categoria: CategoriaDisponivel) => void;
 }
 
 const ListaCategoriasCheckbox = ({

@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useParams } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import MapaVisual from '../componentes/MapaVisual';
 import { extrairLatitudeLongitude } from '../ajudantes/coordenadas';
 import { useNotificacao } from '../contextos/NotificacaoContexto';
 import { buscarPostagemPorSlug } from '../servicos/postagens';
 import { montarUrlApi } from '../servicos/api';
-import type { PostagemDetalhe as PostagemDetalheTipo } from '../tipos/postagem';
+import type { PostagemDetalhe as PostagemDetalheTipo } from '@lafam/back-front';
 
 const DetalhePostagem = () => {
   const { slug } = useParams({ strict: false }) as { slug?: string };
   const [postagem, setPostagem] = useState<PostagemDetalheTipo | null>(null);
   const [carregando, setCarregando] = useState(true);
   const { mostrarNotificacao } = useNotificacao();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!slug) return;
@@ -22,7 +24,7 @@ const DetalhePostagem = () => {
         const dados = await buscarPostagemPorSlug(slug);
         setPostagem(dados);
       } catch (error) {
-        mostrarNotificacao(error instanceof Error ? error.message : 'Erro ao carregar postagem.', 'erro');
+        mostrarNotificacao(error instanceof Error ? error.message : t('post.loadError'), 'erro');
       } finally {
         setCarregando(false);
       }
@@ -32,11 +34,11 @@ const DetalhePostagem = () => {
   }, [slug, mostrarNotificacao]);
 
   if (carregando) {
-    return <section className="pagina"><div className="painel">Carregando postagem...</div></section>;
+    return <section className="pagina"><div className="painel">{t('post.loading')}</div></section>;
   }
 
   if (!postagem) {
-    return <section className="pagina"><div className="painel">Postagem não encontrada.</div></section>;
+    return <section className="pagina"><div className="painel">{t('post.notFound')}</div></section>;
   }
 
   const { latitude, longitude } = extrairLatitudeLongitude(postagem.coordenadas);
@@ -48,9 +50,9 @@ const DetalhePostagem = () => {
         <p className="postagem__resumo">{postagem.resumo}</p>
 
         <div className="postagem__meta">
-          <p><strong>Localidade:</strong> {postagem.localidade}</p>
-          <p><strong>Categoria:</strong> {postagem.categoria}</p>
-          {postagem.tags && <p><strong>Tags:</strong> {postagem.tags}</p>}
+          <p><strong>{t('post.location')}</strong> {postagem.localidade}</p>
+          <p><strong>{t('post.category')}</strong> {postagem.categoria}</p>
+          {postagem.tags && <p><strong>{t('post.tags')}</strong> {postagem.tags}</p>}
         </div>
 
         <img
@@ -69,20 +71,20 @@ const DetalhePostagem = () => {
 
         {postagem.coordenadas && (
           <div>
-            <h2>Mapa</h2>
+            <h2>{t('post.map')}</h2>
             <MapaVisual latitude={latitude} longitude={longitude} />
           </div>
         )}
 
         {postagem.galeria && postagem.galeria.length > 0 && (
           <div>
-            <h2>Galeria</h2>
+            <h2>{t('post.gallery')}</h2>
             <div className="grade-galeria">
               {postagem.galeria.map((imagem, index) => (
                 <img
                   key={`${imagem}-${index}`}
                   src={montarUrlApi(`/postagens/imagens/${imagem}`)}
-                  alt={`${postagem.titulo} ${index + 1}`}
+                  alt={t('post.imageAlt', { title: postagem.titulo, index: index + 1 })}
                   className="galeria__imagem"
                 />
               ))}

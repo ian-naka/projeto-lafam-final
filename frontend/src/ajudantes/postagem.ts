@@ -1,6 +1,6 @@
 import { extrairLatitudeLongitude, montarCoordenadas } from './coordenadas';
 import type { DadosFormularioPostagem } from '../componentes/FormularioPostagem';
-import type { PostagemDetalhe } from '../tipos/postagem';
+import type { PostagemDetalhe, PostagemPayload } from '@lafam/back-front';
 
 export const formularioPostagemInicial: DadosFormularioPostagem = {
   titulo: '',
@@ -27,7 +27,7 @@ export function slugificar(valor: string) {
     .replace(/\s+/g, '-');
 }
 
-export function montarPayloadPostagem(formulario: DadosFormularioPostagem) {
+export function montarPayloadPostagem(formulario: DadosFormularioPostagem): PostagemPayload {
   return {
     titulo: formulario.titulo.trim(),
     slug: formulario.slug.trim(),

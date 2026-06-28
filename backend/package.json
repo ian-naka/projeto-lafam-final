@@ -15,6 +15,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@lafam/back-front": "file:../back-front",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

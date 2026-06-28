@@ -4,10 +4,13 @@ node_modules/
 #variaveis de ambiente
 .env
 *.md
+!AGENTS.md
 .env.*
 
 #arquivos compilados
 dist/
+!back-front/dist/
+!back-front/dist/**
 build/
 
 #logs de erro do NPM

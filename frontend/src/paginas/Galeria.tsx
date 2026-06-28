@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import type { Categoria } from '../tipos/categoria';
+import { useTranslation } from 'react-i18next';
+import type { Categoria } from '@lafam/back-front';
 import { listarCategorias } from '../servicos/categorias';
 
 const Galeria = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     listarCategorias().then(setCategorias);
@@ -13,8 +15,8 @@ const Galeria = () => {
   return (
     <section className="pagina">
       <div className="pagina__topo">
-        <h1>Galeria</h1>
-        <p>Escolha uma categoria para navegar pelas postagens.</p>
+        <h1>{t('gallery.title')}</h1>
+        <p>{t('gallery.subtitle')}</p>
       </div>
 
       <div className="grade-categorias">

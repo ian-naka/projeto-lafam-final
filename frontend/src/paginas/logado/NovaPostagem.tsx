@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import FormularioPostagem, { type DadosFormularioPostagem } from '../../componentes/FormularioPostagem';
+import FormularioPostagem, {
+  type CampoTextoFormularioPostagem,
+  type DadosFormularioPostagem,
+} from '../../componentes/FormularioPostagem';
 import { obterToken } from '../../ajudantes/autenticacao';
 import { formularioPostagemInicial, montarPayloadPostagem, slugificar } from '../../ajudantes/postagem';
 import { useNotificacao } from '../../contextos/NotificacaoContexto';
 import { listarCategorias } from '../../servicos/categorias';
 import { criarPostagem } from '../../servicos/postagens';
-import type { Categoria } from '../../tipos/categoria';
+import type { Categoria, CategoriaDisponivel } from '@lafam/back-front';
 
 const NovaPostagem = () => {
   const navigate = useNavigate();
@@ -19,15 +22,18 @@ const NovaPostagem = () => {
     listarCategorias().then(setCategoriasDisponiveis);
   }, []);
 
-  const atualizarCampo = (chave: keyof DadosFormularioPostagem, valor: string) => {
+  const atualizarCampo = (chave: CampoTextoFormularioPostagem, valor: string) => {
     setFormulario((estadoAtual) => ({
       ...estadoAtual,
       [chave]: valor,
     }));
   };
 
-  const selecionarCategoria = (categoria: string) => {
-    atualizarCampo('categoria', categoria);
+  const selecionarCategoria = (categoria: CategoriaDisponivel) => {
+    setFormulario((estadoAtual) => ({
+      ...estadoAtual,
+      categoria,
+    }));
   };
 
   const definirThumb = (id: string) => {

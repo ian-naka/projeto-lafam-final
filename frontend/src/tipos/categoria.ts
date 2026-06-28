@@ -1,4 +1,1 @@
-export interface Categoria {
-  nome: string;
-  slug: string;
-}
+export type { Categoria } from '@lafam/back-front';

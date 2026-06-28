@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useGooglePickerLafam } from '../hooks/useGooglePickerLafam';
 
 interface SeletorImagensDriveProps {
@@ -16,6 +17,7 @@ const SeletorImagensDrive = ({
   removerImagem,
 }: SeletorImagensDriveProps) => {
   const { selecionarUmaImagem, selecionarVariasImagens } = useGooglePickerLafam();
+  const { t } = useTranslation();
 
   const abrirSeletorThumb = () => {
     selecionarUmaImagem(definirThumb);
@@ -29,16 +31,16 @@ const SeletorImagensDrive = ({
     <div className="seletor-drive">
       <div className="seletor-drive__acoes">
         <button type="button" onClick={abrirSeletorGaleria}>
-          Selecionar imagens da galeria
+          {t('drivePicker.selectGalleryImages')}
         </button>
         <button type="button" onClick={abrirSeletorThumb}>
-          Selecionar imagem de capa
+          {t('drivePicker.selectCoverImage')}
         </button>
       </div>
 
       <div className="seletor-drive__estado">
-        <p><strong>Capa:</strong> {thumb || 'Nenhuma selecionada'}</p>
-        <p><strong>Galeria:</strong> {galeria.length} imagem(ns)</p>
+        <p><strong>{t('drivePicker.cover')}</strong> {thumb || t('drivePicker.coverEmpty')}</p>
+        <p>{t('drivePicker.galleryCount', { count: galeria.length })}</p>
       </div>
 
       {galeria.length > 0 && (
@@ -49,11 +51,11 @@ const SeletorImagensDrive = ({
               <div className="seletor-drive__item-acoes">
                 {thumb !== id && (
                   <button type="button" onClick={() => definirThumb(id)}>
-                    Definir como capa
+                    {t('drivePicker.setAsCover')}
                   </button>
                 )}
                 <button type="button" onClick={() => removerImagem(id)}>
-                  Remover
+                  {t('drivePicker.remove')}
                 </button>
               </div>
             </div>

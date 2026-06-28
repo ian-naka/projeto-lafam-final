@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
+import { useTranslation } from 'react-i18next';
 import { obterToken } from '../../ajudantes/autenticacao';
 import { useNotificacao } from '../../contextos/NotificacaoContexto';
 import { excluirPostagem, listarPostagens } from '../../servicos/postagens';
 import { montarUrlApi } from '../../servicos/api';
-import type { PostagemResumo } from '../../tipos/postagem';
+import type { PostagemResumo } from '@lafam/back-front';
 
 const AdminPostagens = () => {
   const [postagens, setPostagens] = useState<PostagemResumo[]>([]);
   const [carregando, setCarregando] = useState(true);
   const { mostrarNotificacao } = useNotificacao();
+  const { t } = useTranslation();
 
   const carregar = async () => {
     try {
@@ -17,7 +19,7 @@ const AdminPostagens = () => {
       const dados = await listarPostagens({ pagina: 1, limit: 200 });
       setPostagens(dados.registros || []);
     } catch (error) {
-      mostrarNotificacao(error instanceof Error ? error.message : 'Erro ao listar postagens.', 'erro');
+      mostrarNotificacao(error instanceof Error ? error.message : t('adminPosts.listError'), 'erro');
     } finally {
       setCarregando(false);
     }
@@ -28,17 +30,17 @@ const AdminPostagens = () => {
   }, []);
 
   const remover = async (id: number) => {
-    const confirmar = window.confirm('Deseja excluir esta postagem?');
+    const confirmar = window.confirm(t('adminPosts.confirmDelete'));
     if (!confirmar) return;
 
     try {
       const token = obterToken();
-      if (!token) throw new Error('Sessão expirada.');
+      if (!token) throw new Error(t('adminPosts.sessionExpired'));
       await excluirPostagem(id, token);
       setPostagens((estadoAtual) => estadoAtual.filter((postagem) => postagem.id !== id));
-      mostrarNotificacao('Postagem excluída com sucesso.', 'sucesso');
+      mostrarNotificacao(t('adminPosts.deleteSuccess'), 'sucesso');
     } catch (error) {
-      mostrarNotificacao(error instanceof Error ? error.message : 'Erro ao excluir postagem.', 'erro');
+      mostrarNotificacao(error instanceof Error ? error.message : t('adminPosts.deleteError'), 'erro');
     }
   };
 
@@ -46,18 +48,18 @@ const AdminPostagens = () => {
     <section className="pagina">
       <div className="pagina__topo pagina__topo--entre">
         <div>
-          <h1>Postagens</h1>
-          <p>Gerencie o conteúdo publicado.</p>
+          <h1>{t('adminPosts.title')}</h1>
+          <p>{t('adminPosts.subtitle')}</p>
         </div>
         <Link to="/admin/nova-postagem" className="botao botao--primario">
-          Nova postagem
+          {t('adminPosts.newPost')}
         </Link>
       </div>
 
       {carregando ? (
-        <div className="painel">Carregando postagens...</div>
+        <div className="painel">{t('adminPosts.loading')}</div>
       ) : postagens.length === 0 ? (
-        <div className="painel">Nenhuma postagem cadastrada.</div>
+        <div className="painel">{t('adminPosts.empty')}</div>
       ) : (
         <div className="lista-admin">
           {postagens.map((postagem) => (
@@ -77,17 +79,17 @@ const AdminPostagens = () => {
                     params={{ slug: postagem.slug }}
                     className="botao botao--secundario"
                   >
-                    Ver
+                    {t('adminPosts.view')}
                   </Link>
                   <Link
                     to="/admin/postagens/$slug/editar"
                     params={{ slug: postagem.slug }}
                     className="botao botao--secundario"
                   >
-                    Editar
+                    {t('adminPosts.edit')}
                   </Link>
                   <button type="button" className="botao botao--perigo" onClick={() => remover(postagem.id)}>
-                    Excluir
+                    {t('adminPosts.delete')}
                   </button>
                 </div>
               </div>

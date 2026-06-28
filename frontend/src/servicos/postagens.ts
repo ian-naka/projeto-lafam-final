@@ -1,18 +1,14 @@
-import type { PostagemDetalhe, PostagemResumo } from '../tipos/postagem';
+import type {
+  ListarPostagensParams,
+  MensagemResponse,
+  PostagemDetalhe,
+  PostagemMutationResponse,
+  PostagemPayload,
+  RespostaListaPostagens,
+} from '@lafam/back-front';
 import { montarUrlApi } from './api';
 
-interface RespostaListaPostagens {
-  registros: PostagemResumo[];
-  total: number;
-  paginaAtual: number;
-  totalPaginas: number;
-}
-
-export async function listarPostagens(params?: {
-  categoria?: string;
-  pagina?: number;
-  limit?: number;
-}): Promise<RespostaListaPostagens> {
+export async function listarPostagens(params?: ListarPostagensParams): Promise<RespostaListaPostagens> {
   const searchParams = new URLSearchParams();
 
   if (params?.categoria) searchParams.set('categoria', params.categoria);
@@ -40,7 +36,7 @@ export async function buscarPostagemPorSlug(slug: string): Promise<PostagemDetal
   return dados;
 }
 
-export async function criarPostagem(payload: Record<string, unknown>, token: string) {
+export async function criarPostagem(payload: PostagemPayload, token: string): Promise<PostagemMutationResponse> {
   const resposta = await fetch(montarUrlApi('/postagens'), {
     method: 'POST',
     headers: {
@@ -60,7 +56,7 @@ export async function criarPostagem(payload: Record<string, unknown>, token: str
   return dados;
 }
 
-export async function atualizarPostagem(id: number, payload: Record<string, unknown>, token: string) {
+export async function atualizarPostagem(id: number, payload: PostagemPayload, token: string): Promise<PostagemMutationResponse> {
   const resposta = await fetch(montarUrlApi(`/postagens/${id}`), {
     method: 'PUT',
     headers: {
@@ -80,7 +76,7 @@ export async function atualizarPostagem(id: number, payload: Record<string, unkn
   return dados;
 }
 
-export async function excluirPostagem(id: number, token: string) {
+export async function excluirPostagem(id: number, token: string): Promise<MensagemResponse> {
   const resposta = await fetch(montarUrlApi(`/postagens/${id}`), {
     method: 'DELETE',
     headers: {
