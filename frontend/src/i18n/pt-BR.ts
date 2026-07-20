@@ -15,8 +15,19 @@ const ptBR = {
   navigation: {
     home: 'Início',
     gallery: 'Galeria',
+    collectionSearch: 'Busca ao acervo',
     admin: 'Admin',
     newPost: 'Nova postagem',
+  },
+  sidebar: {
+    toggle: 'Abrir menu lateral',
+    close: 'Fechar menu lateral',
+    subtitle: 'Navegue pela galeria e consulte o acervo',
+    badge: 'Navegue pela galeria e consulte o acervo',
+    title: 'Acesse o LAFAM',
+    description: 'Navegue pela galeria, consulte o acervo e acesse o login a partir do menu lateral.',
+    navigationLabel: 'Links principais',
+    footer: 'Catálogo ambiental em destaque',
   },
   home: {
     eyebrow: 'Lafam MVP',

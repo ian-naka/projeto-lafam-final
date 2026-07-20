@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useResponsividade } from '../../hooks';
 
 type ContainerProps = {
+  ancoradoNoTopo?: boolean;
   cabecalho?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -12,6 +13,7 @@ type ContainerProps = {
 };
 
 export function Container({
+  ancoradoNoTopo = false,
   cabecalho,
   children,
   className = '',
@@ -25,12 +27,20 @@ export function Container({
   return (
     <div
       className={`flex min-h-dvh w-screen bg-transparent ${
-        telaSomenteContainer ? 'items-center justify-center' : ''
+        telaSomenteContainer
+          ? ancoradoNoTopo
+            ? 'items-start justify-center'
+            : 'items-center justify-center'
+          : ''
       }${className ? ` ${className}` : ''}`}
     >
       <div
         className={`flex min-h-dvh w-screen flex-col ${
-          telaSomenteContainer ? 'max-w-full justify-center' : 'xl:w-[50vw]'
+          telaSomenteContainer
+            ? ancoradoNoTopo
+              ? 'max-w-full justify-start'
+              : 'max-w-full justify-center'
+            : 'xl:w-[50vw]'
         }`}
       >
         {cabecalho ? (
@@ -40,8 +50,12 @@ export function Container({
         ) : null}
 
         <main
-          className={`flex w-full items-center justify-center px-4 md:px-6 ${
-            cabecalho ? 'flex-1 pb-6 pt-2' : 'min-h-dvh py-6'
+          className={`flex w-full justify-center px-4 md:px-6 ${
+            cabecalho
+              ? 'flex-1 items-center pb-6 pt-2'
+              : ancoradoNoTopo
+                ? 'min-h-dvh items-start py-0'
+                : 'min-h-dvh items-center py-6'
           }`}
         >
           <div
@@ -49,7 +63,7 @@ export function Container({
               destaque ? 'rounded-[24px] border-gray-200 shadow-sm' : 'rounded-[12px] border-[#E5E7EB]'
             } ${
               ehMobileOuTablet ? 'w-full max-w-[325px] min-h-[435px]' : 'h-[474px] w-[367px]'
-            }${contentClassName ? ` ${contentClassName}` : ''}`}
+            }${ancoradoNoTopo ? ' rounded-t-none border-t-0' : ''}${contentClassName ? ` ${contentClassName}` : ''}`}
           >
             {children}
           </div>

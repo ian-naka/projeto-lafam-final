@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Button } from './botao/Button';
 import { useGooglePickerLafam } from '../hooks/useGooglePickerLafam';
 
 interface SeletorImagensDriveProps {
@@ -28,35 +29,40 @@ const SeletorImagensDrive = ({
   };
 
   return (
-    <div className="seletor-drive">
-      <div className="seletor-drive__acoes">
-        <button type="button" onClick={abrirSeletorGaleria}>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-3">
+        <Button type="button" variant="secondary" className="h-10" onClick={abrirSeletorGaleria}>
           {t('drivePicker.selectGalleryImages')}
-        </button>
-        <button type="button" onClick={abrirSeletorThumb}>
+        </Button>
+        <Button type="button" variant="secondary" className="h-10" onClick={abrirSeletorThumb}>
           {t('drivePicker.selectCoverImage')}
-        </button>
+        </Button>
       </div>
 
-      <div className="seletor-drive__estado">
-        <p><strong>{t('drivePicker.cover')}</strong> {thumb || t('drivePicker.coverEmpty')}</p>
-        <p>{t('drivePicker.galleryCount', { count: galeria.length })}</p>
+      <div className="flex flex-col gap-1 rounded-[12px] border border-[#E5E7EB] bg-[#FCFCFD] px-4 py-3">
+        <p className="lafam-text-helper">
+          <strong className="text-[#0A0A0A]">{t('drivePicker.cover')}</strong> {thumb || t('drivePicker.coverEmpty')}
+        </p>
+        <p className="lafam-text-helper">{t('drivePicker.galleryCount', { count: galeria.length })}</p>
       </div>
 
       {galeria.length > 0 && (
-        <div className="seletor-drive__lista">
+        <div className="flex flex-col gap-2">
           {galeria.map((id) => (
-            <div key={id} className="seletor-drive__item">
-              <span>{id}</span>
-              <div className="seletor-drive__item-acoes">
+            <div
+              key={id}
+              className="flex flex-col gap-3 rounded-[12px] border border-[#E5E7EB] bg-white px-4 py-3 md:flex-row md:items-center md:justify-between"
+            >
+              <span className="lafam-text-helper overflow-hidden text-ellipsis">{id}</span>
+              <div className="flex flex-wrap gap-2">
                 {thumb !== id && (
-                  <button type="button" onClick={() => definirThumb(id)}>
+                  <Button type="button" variant="secondary" className="h-9 px-4" onClick={() => definirThumb(id)}>
                     {t('drivePicker.setAsCover')}
-                  </button>
+                  </Button>
                 )}
-                <button type="button" onClick={() => removerImagem(id)}>
+                <Button type="button" variant="secondary" className="h-9 px-4" onClick={() => removerImagem(id)}>
                   {t('drivePicker.remove')}
-                </button>
+                </Button>
               </div>
             </div>
           ))}

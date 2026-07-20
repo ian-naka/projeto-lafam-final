@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { Op } from 'sequelize';
 
 const mocksRegistro = {
-  findAll: mock(),
+  findAndCountAll: mock(),
   findOne: mock(),
   create: mock(),
   findByPk: mock(),
@@ -73,6 +74,88 @@ describe('controllers/postagemController', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ message: 'Categoria inválida.' });
+  });
+
+  test('lista postagens com busca e paginacao direto no banco', async () => {
+    const registros = [
+      {
+        id: 1,
+        titulo: 'Orquidea rara',
+        slug: 'orquidea-rara',
+        resumo: 'Resumo',
+        thumb: 'thumb-1',
+        categoria: 'Flora',
+      },
+    ];
+    const req = {
+      query: {
+        categoria: 'flora',
+        busca: 'orquidea',
+        pagina: '2',
+        limit: '40',
+      },
+    };
+    const res = criarRespostaMock();
+
+    mocksRegistro.findAndCountAll.mockResolvedValue({
+      rows: registros,
+      count: 51,
+    });
+
+    await postagemController.listar(req as never, res as never);
+
+    expect(mocksRegistro.findAndCountAll).toHaveBeenCalledWith({
+      where: {
+        categoria: 'Flora',
+        [Op.or]: [
+          { titulo: { [Op.like]: '%orquidea%' } },
+          { tags: { [Op.like]: '%orquidea%' } },
+        ],
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 40,
+      offset: 40,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      registros,
+      total: 51,
+      paginaAtual: 2,
+      totalPaginas: 2,
+    });
+  });
+
+  test('busca postagens por categoria paginada reutilizando a mesma listagem', async () => {
+    const req = {
+      params: {
+        categoria: 'funga',
+      },
+      query: {},
+    };
+    const res = criarRespostaMock();
+
+    mocksRegistro.findAndCountAll.mockResolvedValue({
+      rows: [],
+      count: 0,
+    });
+
+    await postagemController.buscarPorCategoriaPaginado(req as never, res as never);
+
+    expect(mocksRegistro.findAndCountAll).toHaveBeenCalledWith({
+      where: {
+        categoria: 'Funga',
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 40,
+      offset: 0,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      registros: [],
+      total: 0,
+      paginaAtual: 1,
+      totalPaginas: 1,
+    });
   });
 
   test('cria postagem com coordenadas derivadas e categoria unica', async () => {

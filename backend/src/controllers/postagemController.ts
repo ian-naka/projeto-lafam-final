@@ -3,11 +3,7 @@ import { postagemSchema, type PostagemPayload } from '@lafam/back-front';
 import { ZodError } from 'zod';
 import Registro from '../models/Registro';
 import { getImagemStream, getImagemOriginalStream, preCacheImagem } from '../services/googleDriveService';
-import { categoriaEhValida, formatarCategoriaDaUrl } from '../helpers/categorias';
-
-function registroPossuiCategoria(registro: Registro, categoria: string): boolean {
-    return registro.categoria === categoria;
-}
+import PostagemService from '../services/postagemService';
 
 function montarCoordenadas(latitude?: string, longitude?: string, coordenadas?: string): string {
     if (latitude?.trim() && longitude?.trim()) {
@@ -36,40 +32,14 @@ function montarPayloadRegistro(dadosValidados: PostagemPayload) {
 export default class postagemController {
     static async listar(req: Request, res: Response): Promise<void> {
         try {
-            const { categoria } = req.query;
-            const limit = parseInt(req.query.limit as string) || 50;
-            const pagina = parseInt(req.query.pagina as string) || 1;
-            const offset = (pagina - 1) * limit;           
-
-            const registros = await Registro.findAll({
-                order: [['createdAt', 'DESC']]
-            });
-
-            let registrosFiltrados = registros;
-
-            if (typeof categoria === 'string' && categoria.trim().length > 0) {
-                const categoriaFormatada = formatarCategoriaDaUrl(categoria.trim());
-
-                if (!categoriaEhValida(categoriaFormatada)) {
-                    res.status(400).json({ message: 'Categoria inválida.' });
-                    return;
-                }
-
-                registrosFiltrados = registros.filter((registro) =>
-                    registroPossuiCategoria(registro, categoriaFormatada)
-                );
-            }
-
-            const registrosPaginados = registrosFiltrados.slice(offset, offset + limit);
-
-            res.status(200).json({
-                registros: registrosPaginados,
-                total: registrosFiltrados.length,
-                paginaAtual: pagina,
-                totalPaginas: Math.ceil(registrosFiltrados.length / limit) || 1
-            });
+            const resposta = await PostagemService.listarPostagensPaginadas(req.query);
+            res.status(200).json(resposta);
         } catch (error) {
             console.error("ERRO AO LISTAR POSTAGENS:", error);
+            if (error instanceof Error && error.message === 'Categoria inválida.') {
+                res.status(400).json({ message: error.message });
+                return;
+            }
             res.status(500).json({ message: 'Erro interno ao listar as postagens.' });
         }
     }
@@ -219,41 +189,17 @@ export default class postagemController {
     // buscar postagens por categoria com paginação
     static async buscarPorCategoriaPaginado(req: Request, res: Response): Promise<void> {
         try {
-            const { categoria } = req.params;
-            const limit = parseInt(req.query.limit as string) || 50;
-            const pagina = parseInt(req.query.pagina as string) || 1;
-            const offset = (pagina - 1) * limit;
-
-            //garante que é uma string
-            const categoriaStr = Array.isArray(categoria) ? categoria[0] : categoria;
-
-            //formata a categoria vinda da URL
-            const categoriaFormatada = formatarCategoriaDaUrl(categoriaStr);
-
-            //valida se é uma categoria permitida
-            if (!categoriaEhValida(categoriaFormatada)) {
-                res.status(400).json({ message: 'Categoria inválida.' });
-                return;
-            }
-
-            const registros = await Registro.findAll({
-                order: [['createdAt', 'DESC']] //ordenar pelos mais recentes
+            const resposta = await PostagemService.listarPostagensPaginadas({
+                ...req.query,
+                categoria: req.params.categoria,
             });
-
-            const registrosFiltrados = registros.filter((registro) =>
-                registroPossuiCategoria(registro, categoriaFormatada)
-            );
-
-            const registrosPaginados = registrosFiltrados.slice(offset, offset + limit);
-
-            res.status(200).json({
-                registros: registrosPaginados,
-                total: registrosFiltrados.length,
-                paginaAtual: pagina,
-                totalPaginas: Math.ceil(registrosFiltrados.length / limit) || 1
-            });
+            res.status(200).json(resposta);
         } catch (error) {
             console.error("ERRO AO BUSCAR POSTAGENS POR CATEGORIA:", error);
+            if (error instanceof Error && error.message === 'Categoria inválida.') {
+                res.status(400).json({ message: error.message });
+                return;
+            }
             res.status(500).json({ message: 'Erro interno ao buscar as postagens da categoria.' });
         }
     }

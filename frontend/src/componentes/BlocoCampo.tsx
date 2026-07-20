@@ -7,8 +7,8 @@ interface BlocoCampoProps {
 
 const BlocoCampo = ({ rotulo, children }: BlocoCampoProps) => {
   return (
-    <label className="bloco-campo">
-      <span className="bloco-campo__rotulo">{rotulo}</span>
+    <label className="flex flex-col gap-2">
+      <span className="lafam-text-label">{rotulo}</span>
       {children}
     </label>
   );

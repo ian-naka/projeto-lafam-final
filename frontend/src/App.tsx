@@ -1,14 +1,14 @@
 import { Outlet } from '@tanstack/react-router';
-import Cabecalho from './componentes/Cabecalho';
 import Rodape from './componentes/Rodape';
 import { ProvedorNotificacao } from './contextos/NotificacaoContexto';
 import FaixaNotificacao from './componentes/FaixaNotificacao';
+import SidebarInicio from './componentes/sidebar/SidebarInicio';
 
 function App() {
   return (
     <ProvedorNotificacao>
       <div className="app-shell">
-        <Cabecalho />
+        <SidebarInicio />
         <FaixaNotificacao />
         <main className="conteudo-principal">
           <Outlet />

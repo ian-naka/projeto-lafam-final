@@ -14,6 +14,8 @@ class Registro extends Model {
   declare localidade: string;
   declare coordenadas?: string;
   declare citacao?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 Registro.init(

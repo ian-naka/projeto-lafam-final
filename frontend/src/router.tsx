@@ -38,6 +38,12 @@ const galeriaRoute = createRoute({
   component: Galeria,
 });
 
+const acervoRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: 'acervo',
+  component: () => <Navigate to="/galeria" replace />,
+});
+
 const galeriaCategoriaRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: 'galeria/$slugCategoria',
@@ -96,6 +102,7 @@ const routeTree = rootRoute.addChildren([
   inicioRoute,
   loginRoute,
   galeriaRoute,
+  acervoRoute,
   galeriaCategoriaRoute,
   postDetalheRoute,
   acervoDetalheRoute,
