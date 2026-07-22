@@ -6,7 +6,6 @@ import faunaImage from '../assets/fauna.png';
 import floraImage from '../assets/flora.png';
 import fungaImage from '../assets/funga.png';
 import { GaleriaCard } from '../componentes/galeria';
-import { useResponsividade } from '../hooks';
 import { listarCategorias } from '../servicos/categorias';
 
 const imagemPorCategoria: Record<string, string> = {
@@ -19,42 +18,32 @@ const imagemPorCategoria: Record<string, string> = {
 
 const Galeria = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const { ehCelular, ehTablet, ehDesktopCompacto } = useResponsividade();
 
   useEffect(() => {
     listarCategorias().then(setCategorias);
   }, []);
 
   return (
-    <section
-      className={`pagina flex flex-col ${
-        ehCelular ? 'gap-4 pt-12 pb-8' : ehTablet ? 'gap-5 pt-14 pb-10' : 'min-h-[calc(100dvh-12rem)] pb-10'
-      }`}
-    >
-      <div className={`flex justify-center ${ehCelular ? '' : ehTablet ? 'pb-1' : 'flex-1 items-center'}`}>
-        <h1 className="lafam-text-display text-center">Galeria</h1>
-      </div>
+    <section className="galeria-pagina">
+      <div className="px-4 md:px-6 pt-[15vh] pb-6 md:pb-8">
+        <div className="w-full max-w-[1180px] mx-auto">
+          <div className="rounded-[24px] border border-gray-200 bg-white px-5 py-4 shadow-sm md:px-6 mb-4">
+            <h1 className="lafam-text-display">Galeria</h1>
+            <p className="lafam-text-subtitle mt-2">Explore as categorias do acervo do LAFAM.</p>
+          </div>
 
-      <div
-        className={`grid gap-4 ${
-          ehCelular
-            ? 'grid-cols-1'
-            : ehTablet
-              ? 'grid-cols-2'
-              : ehDesktopCompacto
-                ? 'grid-cols-3'
-                : 'grid-cols-5'
-        }`}
-      >
-        {categorias.map((categoria) => (
-          <GaleriaCard
-            key={categoria.slug}
-            imagem={imagemPorCategoria[categoria.slug]}
-            nome={categoria.nome}
-            slug={categoria.slug}
-            tamanho={ehCelular ? 'mobile' : ehTablet ? 'tablet' : ehDesktopCompacto ? 'compacto' : 'padrao'}
-          />
-        ))}
+          <div className="flex justify-center gap-4">
+            {categorias.map((categoria) => (
+              <div key={categoria.slug} className="flex-1 min-w-0 max-w-[220px]">
+                <GaleriaCard
+                  imagem={imagemPorCategoria[categoria.slug]}
+                  nome={categoria.nome}
+                  slug={categoria.slug}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

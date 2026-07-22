@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from '@tanstack/react-router';
-import { House, ImageIcon, LogIn, Menu, Search, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import { House, ImageIcon, LogIn, LogOut, Menu, Plus, Search, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { encerrarSessao, usuarioEstaAutenticado } from '../../ajudantes/autenticacao';
 
 type ItemSidebar = {
   rota: string;
@@ -33,6 +34,10 @@ const SidebarInicio = () => {
     };
   }, [aberta]);
 
+  const navigate = useNavigate();
+
+  const autenticado = usuarioEstaAutenticado();
+
   const itens = useMemo<ItemSidebar[]>(
     () => [
       {
@@ -50,14 +55,15 @@ const SidebarInicio = () => {
         rotulo: t('navigation.collectionSearch'),
         icone: Search,
       },
-      {
-        rota: '/login',
-        rotulo: t('common.login'),
-        icone: LogIn,
-      },
     ],
     [t]
   );
+
+  const aoFazerLogout = () => {
+    encerrarSessao();
+    setAberta(false);
+    navigate({ to: '/' });
+  };
 
   return (
     <>
@@ -105,6 +111,35 @@ const SidebarInicio = () => {
               </Link>
             );
           })}
+
+          {autenticado ? (
+            <>
+              <Link
+                to="/admin/nova-postagem"
+                className={`pagina-sidebar__item ${location.pathname === '/admin/nova-postagem' ? 'pagina-sidebar__item--ativo' : ''}`}
+                onClick={() => setAberta(false)}
+              >
+                <Plus size={18} />
+                <span>{t('navigation.newPost')}</span>
+              </Link>
+              <button
+                className="pagina-sidebar__item"
+                onClick={aoFazerLogout}
+              >
+                <LogOut size={18} />
+                <span>{t('common.logout')}</span>
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className={`pagina-sidebar__item ${location.pathname === '/login' ? 'pagina-sidebar__item--ativo' : ''}`}
+              onClick={() => setAberta(false)}
+            >
+              <LogIn size={18} />
+              <span>{t('common.login')}</span>
+            </Link>
+          )}
         </nav>
       </aside>
     </>
